@@ -6,7 +6,7 @@ using std::endl;
 
 LibZpg::LibZpg()
 {
-	
+
 }
 
 bool LibZpg::add(std::string filename) // TODO: forbid to add multiple files with same name
@@ -16,7 +16,7 @@ bool LibZpg::add(std::string filename) // TODO: forbid to add multiple files wit
 	{
 		ZFile zfile;
 		zfile.fileName = filename;
-		
+
 		size_t pos = filename.find_last_of(".");
 		std::string ext;
 		if(pos != std::string::npos)
@@ -27,7 +27,7 @@ bool LibZpg::add(std::string filename) // TODO: forbid to add multiple files wit
 			zfile.tag = "SOUND";
 		else if(ext == ".txt")
 			zfile.tag = "TEXT";
-		
+
 		file.seekg(0, std::ios::end);
 		zfile.fileSize = file.tellg();
 		file.seekg(0, std::ios::beg);
@@ -38,7 +38,7 @@ bool LibZpg::add(std::string filename) // TODO: forbid to add multiple files wit
 		zfile.binary = new unsigned char[zfile.compSize];
 		compress((Bytef*)zfile.binary, &zfile.compSize, (Bytef*)input, zfile.fileSize);
 		m_vZFiles.push_back(zfile);
-		
+
 		return true;
 	}
 	else return false;
@@ -52,7 +52,7 @@ bool LibZpg::toFile(std::string output)
 		for(unsigned int i=0; i<m_vZFiles.size(); i++) //TODO: order by tag
 		{
 			ZFile zfile = m_vZFiles.at(i);
-			
+
 			file << zfile.tag << " " << zfile.fileName << " " << zfile.fileSize << " " << zfile.compSize << endl;
 			file.write((const char*)zfile.binary, m_vZFiles.at(i).compSize);
 			file << endl;
@@ -72,15 +72,15 @@ bool LibZpg::read(std::string input)
 		cerr << "File " << input << " not found" << endl;
 		return false;
 	}
-	
+
 	file.seekg (0, file.end);
 	unsigned long length = file.tellg();
 	file.seekg (0, file.beg);
-	
+
 	while(file.tellg() < length) // (!file.eof()) causes a last unwanted iteration
 	{
 		ZFile zfile;
-		
+
 		file >> zfile.tag >> zfile.fileName >> zfile.fileSize >> zfile.compSize;
 		file.ignore(1);
 		zfile.binary = new unsigned char[zfile.compSize];
@@ -88,9 +88,12 @@ bool LibZpg::read(std::string input)
 		file.ignore(1);
 		unsigned char output[zfile.fileSize];
 		uncompress((Bytef*)output, &zfile.fileSize, (Bytef*)zfile.binary, zfile.compSize);
-		
+
+        delete zfile.binary;
+
+
 		cout << zfile.tag << ": " << zfile.fileName << " (" << zfile.fileSize << " bytes)" << endl;
-		
+
 		//// extracts packed files in 'out' folder (it must exists)
 		std::ofstream out("out/"+zfile.fileName, std::ios::binary);
 		out << output;
@@ -107,14 +110,14 @@ bool LibZpg::load(std::string zipname, std::string filename, unsigned char ** bu
 		cerr << "File " << zipname << " not found" << endl;
 		return false;
 	}
-	
+
 	file.seekg (0, file.end);
 	unsigned long length = file.tellg();
 	file.seekg (0, file.beg);
 	while(file.tellg() < length) // (!file.eof()) causes a last unwanted iteration
 	{
 		ZFile zfile;
-		
+
 		file >> zfile.tag >> zfile.fileName >> zfile.fileSize >> zfile.compSize;
 		file.ignore(1);
 		if(filename == zfile.fileName)
@@ -124,11 +127,12 @@ bool LibZpg::load(std::string zipname, std::string filename, unsigned char ** bu
 			file.ignore(1);
 			*buffer = new unsigned char[zfile.fileSize];
 			uncompress((Bytef*)*buffer, &zfile.fileSize, (Bytef*)zfile.binary, zfile.compSize);
-			
+
+            delete zfile.binary;
 			file.close();
 			return true;
 		}
-		else 
+		else
 			file.ignore(zfile.compSize);
 	}
 	return false;
