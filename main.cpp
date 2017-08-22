@@ -5,9 +5,9 @@
 using namespace std;
 
 int main(int argc, char *argv[])
-{	
+{
 	LibZpg myZ;
-	
+
 	if(argc>1)
 	{
 		for(int i=1; i<argc; i++)
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	}
 
 	myZ.read("pack.xzp");
-	
+
 	unsigned char *buffer;
 	if(myZ.load("pack.xzp", "img.png", &buffer)) // loads test.txt from pack.xzp into buffer
 	{
@@ -25,4 +25,6 @@ int main(int argc, char *argv[])
 		// ofstream out("ok.png", ios::binary);
 		// out << buffer;
 	}
+
+	delete buffer;
 }
