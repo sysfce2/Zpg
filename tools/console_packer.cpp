@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cassert>
-#include "LibZpg.hpp"
+#include <LibZpg.hpp>
 #include <iostream>
 using namespace std;
 

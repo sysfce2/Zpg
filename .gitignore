@@ -1,0 +1,11 @@
+CMakeCache.txt
+CMakeFiles/
+CMakeLists.txt
+Makefile
+build/
+cmake_install.cmake
+console_packer
+install_manifest.txt
+*.a
+
+

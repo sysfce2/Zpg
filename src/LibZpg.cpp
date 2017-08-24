@@ -1,4 +1,4 @@
-#include "LibZpg.hpp"
+#include "../include/LibZpg.hpp"
 #include <iostream>
 using std::cerr;
 using std::cout;
