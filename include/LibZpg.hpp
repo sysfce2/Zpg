@@ -9,22 +9,22 @@
 
 class LibZpg
 {
-    struct ZFile
-    {
-        std::string tag;
-        std::string fileName;
-        unsigned long fileSize;
-        uLong compSize;
-        unsigned char *binary;
-    };
-
-    std::vector<ZFile> m_vZFiles;
+	struct ZFile
+	{
+		std::string tag;
+		std::string fileName;
+		unsigned long fileSize;
+		uLong compSize;
+		std::string binary;
+	};
+	
+	std::vector<ZFile> m_vZFiles;
 public:
-    LibZpg();
-    bool add(std::string);
-    bool toFile(std::string);
-    bool read(std::string);
-    bool load(std::string, std::string, unsigned char **);
+	LibZpg();
+	bool add(std::string);
+	bool toFile(std::string);
+	bool read(std::string);
+	bool load(std::string, std::string, std::string *);
 };
 
 #endif // LIBZPG_HPP
