@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 			std::vector<ZpgFileHeader>::const_iterator cit = Files.begin();
 			while (cit != Files.end())
 			{
-				std::cout << (*cit).m_aFullPath << " [CSize: " << (*cit).m_FileSizeComp << "][Size: " << (*cit).m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).m_FileStart << "]" << std::endl;
+				std::cout << std::dec << (*cit).m_aFullPath << " [CSize: " << (*cit).m_FileSizeComp << "][Size: " << (*cit).m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).m_FileStart << "]" << std::nouppercase << std::endl;
 				++cit;
 			}
 		}

@@ -177,12 +177,3 @@ unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSi
 
 	return 0x0;
 }
-
-bool LibZpg::remove(const char *pFullPath)
-{
-	return true;
-}
-bool LibZpg::move(const char *pCurFullPath, const char *pNewFullPath)
-{
-	return true;
-}

@@ -6,7 +6,6 @@
 #include <vector>
 
 #define LZPG_PATH_MAX_LENGTH			512
-#define PATH_DELIMITER					'/'
 
 struct ZpgHeader
 {
@@ -37,8 +36,6 @@ public:
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
     bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
     unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
-    bool remove(const char *pFullPath);
-    bool move(const char *pCurFullPath, const char *pNewFullPath);
 
     const std::vector<ZpgFileHeader>& getFilesInfo() const { return m_vFileHeaders; }
 
