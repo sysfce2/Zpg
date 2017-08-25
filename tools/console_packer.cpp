@@ -11,7 +11,7 @@
  *
  * Example Usage:
  * 		console_packer mypack.zpg -C -A photo.png			> This will create a new ZPG package 'mypack.zpg' and adds the "photo.png" file
- * 		console_packer mypack.zpg -A notes.png				> This adds into 'mypack.zpg' the "notes.txt" file
+ * 		console_packer mypack.zpg -A notes.txt				> This adds into 'mypack.zpg' the "notes.txt" file
  * 		console_packer mypack.zpg -L						> This list files inside 'mypack.zpg'
  * 		console_packer mypack.zpg -E photo.png				> This extracts 'photo.png' from 'mypack.zpg'
  */
