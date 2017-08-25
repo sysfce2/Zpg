@@ -36,16 +36,16 @@ bool LibZpg::create(const char *pFile)
 {
 	if (m_PackageFile.is_open())
 		return false;
-	m_PackageFile.open(pFile, std::ios::out | std::ios::binary);
 
+	m_vFileHeaders.clear();
+	memset(&m_PackageHeader, 0, sizeof(ZpgHeader));
+	m_PackageFile.open(pFile, std::ios::out | std::ios::binary);
 	if (m_PackageFile.is_open())
 	{
-		ZpgHeader header;
-		header.m_NumFiles = 0;
-		strncpy(header.m_Version, FILE_VERSION, sizeof(header.m_Version));
+		m_PackageHeader.m_NumFiles = 0;
+		strncpy(m_PackageHeader.m_Version, FILE_VERSION, sizeof(m_PackageHeader.m_Version));
 		m_PackageFile << FILE_SIGN;
-		m_PackageFile.write(reinterpret_cast<const char*>(&header), sizeof(ZpgHeader));
-		m_PackageFile.close();
+		m_PackageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(ZpgHeader));
 		return true;
 	}
 	return false;
@@ -137,6 +137,7 @@ bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const
 	fileHeader.m_FileSizeComp = compSize;
 	fileHeader.m_FileStart = (unsigned long)m_PackageFile.tellg() + sizeof(ZpgFileHeader);
 	strncpy(fileHeader.m_aFullPath, pToFullPath, sizeof(fileHeader.m_aFullPath));
+	m_vFileHeaders.push_back(fileHeader);
 
 	m_PackageFile.seekg(0, std::ios::end);
 	m_PackageFile.write(reinterpret_cast<const char*>(&fileHeader), sizeof(ZpgFileHeader));

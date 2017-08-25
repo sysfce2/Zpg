@@ -10,7 +10,10 @@
  * 		- E <file>		> Extract file
  *
  * Example Usage:
- * 		console_packer mypack.zpg -C -A photo.png			> This will create a new ZPG package and adds the "photo.png" file
+ * 		console_packer mypack.zpg -C -A photo.png			> This will create a new ZPG package 'mypack.zpg' and adds the "photo.png" file
+ * 		console_packer mypack.zpg -A notes.png				> This adds into 'mypack.zpg' the "notes.txt" file
+ * 		console_packer mypack.zpg -L						> This list files inside 'mypack.zpg'
+ * 		console_packer mypack.zpg -E photo.png				> This extracts 'photo.png' from 'mypack.zpg'
  */
 #include <LibZpg.hpp>
 #include <cstring>
@@ -49,68 +52,63 @@ int main(int argc, char *argv[])
         }
 
 
-        if (aToFile[0] != 0)
-        {
-        	if (createMode)
-        	{
-        		bool res = myZ.create(aToFile);
-        		std::cout << "Creating File..." << (res?"OK":"FAILURE!") << std::endl;
-        	}
+		if (createMode)
+		{
+			bool res = myZ.create(aToFile);
+			std::cout << "Creating File..." << (res?"OK":"FAILURE!") << std::endl;
+		} else if (!myZ.open(aToFile))
+		{
+			std::cout << "Invalid ZPG File!" << std::endl;
+			return -1;
+		}
 
-        	if (!myZ.open(aToFile))
-        	{
-        		std::cout << "Invalid ZPG File!" << std::endl;
-        		return -1;
-        	}
+		if (aAddContentPath[0] != 0)
+		{
+			std::string path(aAddContentPath);
+			std::size_t delPos = path.find_last_of("/\\");
 
-        	if (aAddContentPath[0] != 0)
-        	{
-        		std::string path(aAddContentPath);
-        		std::size_t delPos = path.find_last_of("/\\");
+			if (!myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(path.find_last_of("/\\")+1).c_str()))
+				std::cout << "Can't add '" << aAddContentPath << "' to package!" << std::endl;
+		}
 
-        		if (!myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(path.find_last_of("/\\")+1).c_str()))
-        			std::cout << "Can't add '" << aAddContentPath << "' to package!" << std::endl;
-        	}
+		if (aExtractContentPath[0] != 0)
+		{
+			unsigned long fileSize = 0;
+			const unsigned char* pData = myZ.getFileData(aExtractContentPath, &fileSize);
+			if (!pData)
+			{
+				std::cout << "File '" << aExtractContentPath << "' not found!" << std::endl;
+			}
+			else
+			{
+				std::ofstream file(aExtractContentPath, std::ios::binary);
+				if (file.is_open())
+				{
+					file.write(reinterpret_cast<const char*>(pData), fileSize);
+					file.close();
+					std::cout << "File '" << aExtractContentPath << "' successfully extracted" << std::endl;
+				}
+				else
+				{
+					std::cout << "Can't extract '" << aExtractContentPath << "'" << std::endl;
+				}
+			}
+			delete [] pData;
+		}
 
-        	if (aExtractContentPath[0] != 0)
-        	{
-        		unsigned long fileSize = 0;
-        		const unsigned char* pData = myZ.getFileData(aExtractContentPath, &fileSize);
-        		if (!pData)
-        		{
-        			std::cout << "File '" << aExtractContentPath << "' not found!" << std::endl;
-        		}
-        		else
-        		{
-					std::ofstream file(aExtractContentPath, std::ios::binary);
-					if (file.is_open())
-					{
-						file.write(reinterpret_cast<const char*>(pData), fileSize);
-						file.close();
-						std::cout << "File '" << aExtractContentPath << "' successfully extracted" << std::endl;
-					}
-					else
-					{
-						std::cout << "Can't extract '" << aExtractContentPath << "'" << std::endl;
-					}
-        		}
-                delete [] pData;
-        	}
+		if (listMode)
+		{
+			const std::vector<ZpgFileHeader> &Files = myZ.getFilesInfo();
+			std::cout << "Num Files: " << Files.size() << std::endl;
+			std::vector<ZpgFileHeader>::const_iterator cit = Files.begin();
+			while (cit != Files.end())
+			{
+				std::cout << (*cit).m_aFullPath << " [CSize: " << (*cit).m_FileSizeComp << "][Size: " << (*cit).m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).m_FileStart << "]" << std::endl;
+				++cit;
+			}
+		}
 
-        	if (listMode)
-        	{
-        		const std::vector<ZpgFileHeader> &Files = myZ.getFilesInfo();
-        		std::cout << "Num Files: " << Files.size() << std::endl;
-        		std::vector<ZpgFileHeader>::const_iterator cit = Files.begin();
-        		while (cit != Files.end())
-        		{
-        			std::cout << (*cit).m_aFullPath << " [CSize: " << (*cit).m_FileSizeComp << "][Size: " << (*cit).m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).m_FileStart << "]" << std::endl;
-        			++cit;
-        		}
-        	}
-
-        	myZ.close();
-        }
+		myZ.close();
     }
     else
     {
