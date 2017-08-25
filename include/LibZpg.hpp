@@ -3,9 +3,7 @@
 #define LIBZPG_HPP
 
 #include <fstream>
-#include <vector>
-
-#define LZPG_PATH_MAX_LENGTH			512
+#include <map>
 
 struct ZpgHeader
 {
@@ -15,7 +13,7 @@ struct ZpgHeader
 
 struct ZpgFileHeader
 {
-	char m_aFullPath[LZPG_PATH_MAX_LENGTH];
+	unsigned int m_NameLength;
 	unsigned long m_FileSize;
 	unsigned long m_FileSizeComp;
 	unsigned long m_FileStart;
@@ -37,7 +35,7 @@ public:
     bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
     unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
 
-    const std::vector<ZpgFileHeader>& getFilesInfo() const { return m_vFileHeaders; }
+    const std::map<std::string, ZpgFileHeader>& getFilesInfo() const { return m_vFileHeaders; }
 
 private:
     bool checkFile();
@@ -46,7 +44,7 @@ private:
 protected:
     std::fstream m_PackageFile;
     ZpgHeader m_PackageHeader;
-    std::vector<ZpgFileHeader> m_vFileHeaders;
+    std::map<std::string, ZpgFileHeader> m_vFileHeaders;
 };
 
 #endif // LIBZPG_HPP

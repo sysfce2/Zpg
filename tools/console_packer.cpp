@@ -98,12 +98,12 @@ int main(int argc, char *argv[])
 
 		if (listMode)
 		{
-			const std::vector<ZpgFileHeader> &Files = myZ.getFilesInfo();
+			const std::map<std::string, ZpgFileHeader> &Files = myZ.getFilesInfo();
 			std::cout << "Num Files: " << Files.size() << std::endl;
-			std::vector<ZpgFileHeader>::const_iterator cit = Files.begin();
+			std::map<std::string, ZpgFileHeader>::const_iterator cit = Files.begin();
 			while (cit != Files.end())
 			{
-				std::cout << std::dec << (*cit).m_aFullPath << " [CSize: " << (*cit).m_FileSizeComp << "][Size: " << (*cit).m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).m_FileStart << "]" << std::nouppercase << std::endl;
+				std::cout << std::dec << (*cit).first << " [CSize: " << (*cit).second.m_FileSizeComp << "][Size: " << (*cit).second.m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).second.m_FileStart << "]" << std::nouppercase << std::endl;
 				++cit;
 			}
 		}
