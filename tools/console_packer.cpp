@@ -1,30 +1,121 @@
-#include <cstdio>
-#include <cassert>
+/* (c) Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
+/*****************************************************
+ * Syntaxis:
+ * 		console_packer <ZPGPackageFile> <options>
+ *
+ * Options:
+ * 		- C				> Create the ZPG Package
+ * 		- A <path>		> Adds the indicate file into ZPG package
+ * 		- L				> List all files inside ZPG package
+ * 		- E <file>		> Extract file
+ *
+ * Example Usage:
+ * 		console_packer mypack.zpg -C -A photo.png			> This will create a new ZPG package and adds the "photo.png" file
+ */
 #include <LibZpg.hpp>
+#include <cstring>
 #include <iostream>
-using namespace std;
 
 int main(int argc, char *argv[])
 {
     LibZpg myZ;
+    char aToFile[512] = {0};
+    char aAddContentPath[1024] = {0};
+    char aExtractContentPath[1024] = {0};
+    bool createMode = false;
+    bool listMode = false;
 
     if(argc>1)
     {
-        for(int i=1; i<argc; i++)
-            myZ.add(argv[i]);
-        myZ.toFile("pack.xzp");
+    	strncpy(aToFile, argv[1], sizeof(aToFile));
+        for (int i=2; i<argc; i++)
+        {
+        	if (argv[i][0] == '-' && argv[i][1] == 'A')
+        	{
+        		strncpy(aAddContentPath, argv[++i], sizeof(aAddContentPath));
+        	}
+        	else if (argv[i][0] == '-' && argv[i][1] == 'C')
+        	{
+        		createMode = true;
+        	}
+        	else if (argv[i][0] == '-' && argv[i][1] == 'L')
+        	{
+        		listMode = true;
+        	}
+        	else if (argv[i][0] == '-' && argv[i][1] == 'E')
+			{
+        		strncpy(aExtractContentPath, argv[++i], sizeof(aAddContentPath));
+			}
+        }
+
+
+        if (aToFile[0] != 0)
+        {
+        	if (createMode)
+        	{
+        		bool res = myZ.create(aToFile);
+        		std::cout << "Creating File..." << (res?"OK":"FAILURE!") << std::endl;
+        	}
+
+        	if (!myZ.open(aToFile))
+        	{
+        		std::cout << "Invalid ZPG File!" << std::endl;
+        		return -1;
+        	}
+
+        	if (aAddContentPath[0] != 0)
+        	{
+        		std::string path(aAddContentPath);
+        		std::size_t delPos = path.find_last_of("/\\");
+
+        		if (!myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(path.find_last_of("/\\")+1).c_str()))
+        			std::cout << "Can't add '" << aAddContentPath << "' to package!" << std::endl;
+        	}
+
+        	if (aExtractContentPath[0] != 0)
+        	{
+        		unsigned long fileSize = 0;
+        		const unsigned char* pData = myZ.getFileData(aExtractContentPath, &fileSize);
+        		if (!pData)
+        		{
+        			std::cout << "File '" << aExtractContentPath << "' not found!" << std::endl;
+        		}
+        		else
+        		{
+					std::ofstream file(aExtractContentPath, std::ios::binary);
+					if (file.is_open())
+					{
+						file.write(reinterpret_cast<const char*>(pData), fileSize);
+						file.close();
+						std::cout << "File '" << aExtractContentPath << "' successfully extracted" << std::endl;
+					}
+					else
+					{
+						std::cout << "Can't extract '" << aExtractContentPath << "'" << std::endl;
+					}
+        		}
+        	}
+
+        	if (listMode)
+        	{
+        		const std::vector<ZpgFileHeader> &Files = myZ.getFilesInfo();
+        		std::cout << "Num Files: " << Files.size() << std::endl;
+        		std::vector<ZpgFileHeader>::const_iterator cit = Files.begin();
+        		while (cit != Files.end())
+        		{
+        			std::cout << (*cit).m_aFullPath << " [CSize: " << (*cit).m_FileSizeComp << "][Size: " << (*cit).m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).m_FileStart << "]" << std::endl;
+        			++cit;
+        		}
+        	}
+
+        	myZ.close();
+        }
     }
-
-    myZ.read("pack.xzp");
-
-    unsigned char *buffer;
-    if(myZ.load("pack.xzp", "img.png", &buffer)) // loads test.txt from pack.xzp into buffer
+    else
     {
-        cout << "Buffer: " << buffer << endl;
-
-        // ofstream out("ok.png", ios::binary);
-        // out << buffer;
+    	std::cout << "Invalid Parameters!" << std::endl;
+    	return -1;
     }
 
-    delete buffer;
+    return 0;
 }

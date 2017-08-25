@@ -1,30 +1,55 @@
+/* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
 #ifndef LIBZPG_HPP
 #define LIBZPG_HPP
 
-#include <zlib.h>
-#include <cstring>
 #include <fstream>
-#include <sstream>
 #include <vector>
+
+#define LZPG_PATH_MAX_LENGTH			512
+#define PATH_DELIMITER					'/'
+
+struct ZpgHeader
+{
+	char m_Version[4];
+	unsigned int m_NumFiles;
+};
+
+struct ZpgFileHeader
+{
+	char m_aFullPath[LZPG_PATH_MAX_LENGTH];
+	unsigned long m_FileSize;
+	unsigned long m_FileSizeComp;
+	unsigned long m_FileStart;
+};
 
 class LibZpg
 {
-	struct ZFile
-	{
-		std::string tag;
-		std::string fileName;
-		unsigned long fileSize;
-		uLong compSize;
-		std::string binary;
-	};
-	
-	std::vector<ZFile> m_vZFiles;
+    static const char FILE_SIGN[];
+    static const char FILE_VERSION[];
+
 public:
-	LibZpg();
-	bool add(std::string);
-	bool toFile(std::string);
-	bool read(std::string);
-	bool load(std::string, std::string, std::string *);
+    bool open(const char *pFile);
+    void close();
+    bool create(const char *pFile);
+
+    bool exists(const char *pFullPath);
+
+    bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
+    bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
+    unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
+    bool remove(const char *pFullPath);
+    bool move(const char *pCurFullPath, const char *pNewFullPath);
+
+    const std::vector<ZpgFileHeader>& getFilesInfo() const { return m_vFileHeaders; }
+
+private:
+    bool checkFile();
+    void getFileHeaders();
+
+protected:
+    std::fstream m_PackageFile;
+    ZpgHeader m_PackageHeader;
+    std::vector<ZpgFileHeader> m_vFileHeaders;
 };
 
 #endif // LIBZPG_HPP
