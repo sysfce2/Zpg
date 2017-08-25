@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
 						std::cout << "Can't extract '" << aExtractContentPath << "'" << std::endl;
 					}
         		}
+                delete [] pData;
         	}
 
         	if (listMode)
