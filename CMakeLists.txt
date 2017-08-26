@@ -52,8 +52,8 @@ add_library(${LIB_NAME} STATIC  src/LibZpg.cpp)
 
 # TOOLS
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-add_executable(console_packer tools/console_packer.cpp)
-target_link_libraries(console_packer ${LIB_NAME} ${ZLIB_LIBRARIES})
+add_executable(zpg_packer tools/zpg_packer.cpp)
+target_link_libraries(zpg_packer ${LIB_NAME} ${ZLIB_LIBRARIES})
 
 # INSTALL
 file(GLOB LIB_PUBLIC_HEADERS "include/*.hpp")

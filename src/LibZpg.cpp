@@ -12,8 +12,8 @@ bool LibZpg::open(const char *pFile)
 	if (m_PackageFile.is_open())
 		return false;
 
-	m_vFileHeaders.clear();
-	memset(&m_PackageHeader, 0, sizeof(ZpgHeader));
+	m_mFileHeaders.clear();
+	memset(&m_PackageHeader, 0, sizeof(m_PackageHeader));
 	m_PackageFile.open(pFile, std::ios::in | std::ios::out | std::ios::binary);
 
 	if (!checkFile())
@@ -37,15 +37,15 @@ bool LibZpg::create(const char *pFile)
 	if (m_PackageFile.is_open())
 		return false;
 
-	m_vFileHeaders.clear();
-	memset(&m_PackageHeader, 0, sizeof(ZpgHeader));
+	m_mFileHeaders.clear();
+	memset(&m_PackageHeader, 0, sizeof(m_PackageHeader));
 	m_PackageFile.open(pFile, std::ios::out | std::ios::binary);
 	if (m_PackageFile.is_open())
 	{
 		m_PackageHeader.m_NumFiles = 0;
 		strncpy(m_PackageHeader.m_Version, FILE_VERSION, sizeof(m_PackageHeader.m_Version));
 		m_PackageFile << FILE_SIGN;
-		m_PackageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(ZpgHeader));
+		m_PackageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(m_PackageHeader));
 		return true;
 	}
 	return false;
@@ -54,16 +54,16 @@ bool LibZpg::create(const char *pFile)
 void LibZpg::getFileHeaders()
 {
 	m_PackageFile.seekg(sizeof(FILE_SIGN)-1, std::ios::beg);
-	m_PackageFile.read(reinterpret_cast<char*>(&m_PackageHeader), sizeof(ZpgHeader));
+	m_PackageFile.read(reinterpret_cast<char*>(&m_PackageHeader), sizeof(m_PackageHeader));
 
 	for (unsigned int i=0; i<m_PackageHeader.m_NumFiles; i++)
 	{
 		ZpgFileHeader fileHeader;
-		m_PackageFile.read(reinterpret_cast<char*>(&fileHeader), sizeof(ZpgFileHeader));
+		m_PackageFile.read(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
 		char aFileName[fileHeader.m_NameLength+1];
 		m_PackageFile.read(aFileName, sizeof(aFileName)-1);
 		aFileName[fileHeader.m_NameLength] = 0;
-		m_vFileHeaders.insert(std::make_pair(std::string(aFileName), fileHeader));
+		m_mFileHeaders.insert(std::make_pair(std::string(aFileName), fileHeader));
 		m_PackageFile.seekg(fileHeader.m_FileSizeComp, std::ios::cur);
 	}
 }
@@ -81,7 +81,7 @@ bool LibZpg::checkFile()
 
 bool LibZpg::exists(const char *pFullPath)
 {
-	return m_vFileHeaders.find(pFullPath) != m_vFileHeaders.end();
+	return m_mFileHeaders.find(pFullPath) != m_mFileHeaders.end();
 }
 
 bool LibZpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
@@ -103,7 +103,7 @@ bool LibZpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
 	const unsigned long length = file.tellg();
 	file.seekg(0, std::ios::beg);
 
-	unsigned char fileData[length];
+	unsigned char fileData[length] = {0};
 	file.read(reinterpret_cast<char*>(&fileData), length);
 
 	file.close();
@@ -120,36 +120,37 @@ bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const
 	}
 
 	unsigned long compSize = compressBound(size);
-	unsigned char compData[compSize];
+	unsigned char compData[compSize] = {0};
 	if (compress((Bytef*)compData, &compSize, (Bytef*)pData, size) != Z_OK)
 	{
 		std::cerr << "Unexpected ZLib Error using compress! '" << std::endl;
 		return false;
 	}
 
+	m_PackageFile.seekg(0, std::ios::end);
+
 	ZpgFileHeader fileHeader;
+	memset(&fileHeader, 0, sizeof(fileHeader));
 	fileHeader.m_NameLength = strlen(pToFullPath);
 	fileHeader.m_FileSize = size;
 	fileHeader.m_FileSizeComp = compSize;
-	fileHeader.m_FileStart = (unsigned long)m_PackageFile.tellg() + sizeof(ZpgFileHeader) + fileHeader.m_NameLength;
-	m_vFileHeaders.insert(std::make_pair(std::string(pToFullPath), fileHeader));
+	fileHeader.m_FileStart = (unsigned long)m_PackageFile.tellg() + sizeof(fileHeader) + fileHeader.m_NameLength;
+	m_mFileHeaders.insert(std::make_pair(std::string(pToFullPath), fileHeader));
 
-	m_PackageFile.seekg(0, std::ios::end);
-	m_PackageFile.write(reinterpret_cast<const char*>(&fileHeader), sizeof(ZpgFileHeader));
-
-	m_PackageFile.write(reinterpret_cast<const char*>(pToFullPath), strlen(pToFullPath)); // File Name
-	m_PackageFile.write(reinterpret_cast<const char*>(compData), compSize);	// File Data
+	m_PackageFile.write(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader)); // File Header
+	m_PackageFile.write(pToFullPath, strlen(pToFullPath)); // File Name
+	m_PackageFile.write(reinterpret_cast<char*>(compData), compSize);	// File Data
 	++m_PackageHeader.m_NumFiles;
 	m_PackageFile.seekg(sizeof(FILE_SIGN)-1, std::ios::beg);
-	m_PackageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(ZpgHeader)); // Update Package Header
+	m_PackageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(m_PackageHeader)); // Update Package Header
 
 	return true;
 }
 
 unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSize)
 {
-	std::map<std::string, ZpgFileHeader>::const_iterator cit = m_vFileHeaders.find(pFullPath);
-	if (cit == m_vFileHeaders.end())
+	std::map<std::string, ZpgFileHeader>::const_iterator cit = m_mFileHeaders.find(pFullPath);
+	if (cit == m_mFileHeaders.end())
 		return 0x0;
 
 	const ZpgFileHeader &fileHeader = (*cit).second;
@@ -161,6 +162,7 @@ unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSi
 	unsigned char *pfileData = new unsigned char[fileSize];
 	if (uncompress((Bytef*)pfileData, &fileSize, (Bytef*)fileCompData, fileHeader.m_FileSizeComp) != Z_OK)
 	{
+		delete[] pfileData;
 		std::cerr << "Unexpected ZLib Error using uncompress! '" << std::endl;
 		return 0x0;
 	}

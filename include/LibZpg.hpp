@@ -26,16 +26,16 @@ class LibZpg
 
 public:
     bool open(const char *pFile);
-    void close();
     bool create(const char *pFile);
+    void close();
 
     bool exists(const char *pFullPath);
 
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
     bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
-    unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
 
-    const std::map<std::string, ZpgFileHeader>& getFilesInfo() const { return m_vFileHeaders; }
+    unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
+    const std::map<std::string, ZpgFileHeader>& getFilesInfo() const { return m_mFileHeaders; }
 
 private:
     bool checkFile();
@@ -44,7 +44,7 @@ private:
 protected:
     std::fstream m_PackageFile;
     ZpgHeader m_PackageHeader;
-    std::map<std::string, ZpgFileHeader> m_vFileHeaders;
+    std::map<std::string, ZpgFileHeader> m_mFileHeaders;
 };
 
 #endif // LIBZPG_HPP
