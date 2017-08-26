@@ -45,7 +45,7 @@ find_package(ZLIB REQUIRED)
 
 
 # INCLUDES
-set(LIB_INCLUDES ${ZLIB_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/include)
+set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/src)
 include_directories(${LIB_INCLUDES})
 
 
@@ -59,7 +59,7 @@ target_link_libraries(zpg_packer ${LIB_NAME} ${ZLIB_LIBRARIES})
 
 
 # INSTALL
-install(DIRECTORY include/ DESTINATION ${BUILD_DIR}/include
+install(DIRECTORY src/ DESTINATION ${BUILD_DIR}/include
         FILES_MATCHING  PATTERN "*.hpp")
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION ${BUILD_DIR}/lib${TARGET_BITS})
 

@@ -1,5 +1,5 @@
 /* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
-#include <LibZpg.hpp>
+#include "LibZpg.hpp"
 #include <iostream>
 #include <cstring>
 #include <zlib.h>
@@ -148,7 +148,7 @@ bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const
 	return true;
 }
 
-unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSize)
+unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSize, bool binary)
 {
 	std::map<std::string, ZpgFileHeader>::const_iterator cit = m_mFileHeaders.find(pFullPath);
 	if (cit == m_mFileHeaders.end())
@@ -159,7 +159,7 @@ unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSi
 	m_PackageFile.seekg(fileHeader.m_FileStart, std::ios::beg);
 	m_PackageFile.read(reinterpret_cast<char*>(&fileCompData), fileHeader.m_FileSizeComp);
 
-	unsigned long fileSize = fileHeader.m_FileSize;
+	unsigned long fileSize = fileHeader.m_FileSize+fileSize+(binary?0:1);
 	unsigned char *pfileData = new unsigned char[fileSize];
 	if (uncompress((Bytef*)pfileData, &fileSize, (Bytef*)fileCompData, fileHeader.m_FileSizeComp) != Z_OK)
 	{
@@ -167,6 +167,9 @@ unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSi
 		std::cerr << "Unexpected ZLib Error using uncompress! '" << std::endl;
 		return 0x0;
 	}
+
+	if (!binary)
+		pfileData[fileSize]='\0';
 
 	*pfileSize = fileHeader.m_FileSize;
 	return pfileData;

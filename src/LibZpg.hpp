@@ -33,7 +33,7 @@ public:
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
     bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
 
-    unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
+    unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize, bool binary=true);
     const std::map<std::string, ZpgFileHeader>& getFilesInfo() const { return m_mFileHeaders; }
 
 private:
