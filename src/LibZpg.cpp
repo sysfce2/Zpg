@@ -1,5 +1,5 @@
 /* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
-#include "../include/LibZpg.hpp"
+#include <LibZpg.hpp>
 #include <iostream>
 #include <cstring>
 #include <zlib.h>
@@ -60,9 +60,11 @@ void LibZpg::getFileHeaders()
 	{
 		ZpgFileHeader fileHeader;
 		m_PackageFile.read(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
-		char aFileName[fileHeader.m_NameLength+1];
-		m_PackageFile.read(aFileName, sizeof(aFileName)-1);
-		aFileName[fileHeader.m_NameLength] = 0;
+		const unsigned int nameLength = fileHeader.m_FileStart - m_PackageFile.tellg();
+		std::cout << "LL: " << nameLength << std::endl;
+		char aFileName[nameLength+1] = {0};
+		m_PackageFile.read(aFileName, nameLength);
+		aFileName[nameLength] = 0;
 		m_mFileHeaders.insert(std::make_pair(std::string(aFileName), fileHeader));
 		m_PackageFile.seekg(fileHeader.m_FileSizeComp, std::ios::cur);
 	}
@@ -131,14 +133,14 @@ bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const
 
 	ZpgFileHeader fileHeader;
 	memset(&fileHeader, 0, sizeof(fileHeader));
-	fileHeader.m_NameLength = strlen(pToFullPath);
+	const unsigned int nameLength = strlen(pToFullPath);
 	fileHeader.m_FileSize = size;
 	fileHeader.m_FileSizeComp = compSize;
-	fileHeader.m_FileStart = (unsigned long)m_PackageFile.tellg() + sizeof(fileHeader) + fileHeader.m_NameLength;
+	fileHeader.m_FileStart = (unsigned long)m_PackageFile.tellg() + sizeof(fileHeader) + nameLength;
 	m_mFileHeaders.insert(std::make_pair(std::string(pToFullPath), fileHeader));
 
 	m_PackageFile.write(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader)); // File Header
-	m_PackageFile.write(pToFullPath, strlen(pToFullPath)); // File Name
+	m_PackageFile.write(pToFullPath, nameLength); // File Name
 	m_PackageFile.write(reinterpret_cast<char*>(compData), compSize);	// File Data
 	++m_PackageHeader.m_NumFiles;
 	m_PackageFile.seekg(sizeof(FILE_SIGN)-1, std::ios::beg);

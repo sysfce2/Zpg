@@ -25,10 +25,11 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(TARGET_COMPILER "cl")
 endif()
 
+
 # CONFIGURE FLAGS
 if (TARGET_COMPILER STREQUAL "gcc" OR
     TARGET_COMPILER STREQUAL "clang")
-    set(cxx_flags "-std=c++0x -Wall")
+    set(cxx_flags "-Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
     set(cxx_flags "/W4 /WX /EHsc")
 endif()
@@ -39,24 +40,26 @@ set(CMAKE_C_FLAGS   "${cxx_flags}"
     CACHE STRING "Flags used by the compiler during all build types." FORCE)
 
 
+# REQUIRED LIBRARIES
 find_package(ZLIB REQUIRED)
 
 
 # INCLUDES
-set(LIB_INCLUDES ${ZLIB_INCLUDE_DIRS})
+set(LIB_INCLUDES ${ZLIB_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(${LIB_INCLUDES})
 
 
 # LIBRARY
 add_library(${LIB_NAME} STATIC  src/LibZpg.cpp)
 
+
 # TOOLS
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 add_executable(zpg_packer tools/zpg_packer.cpp)
 target_link_libraries(zpg_packer ${LIB_NAME} ${ZLIB_LIBRARIES})
 
+
 # INSTALL
-file(GLOB LIB_PUBLIC_HEADERS "include/*.hpp")
-install(FILES ${LIB_PUBLIC_HEADERS} DESTINATION ${BUILD_DIR}/include)
+install(DIRECTORY include/ DESTINATION ${BUILD_DIR}/include
+        FILES_MATCHING  PATTERN "*.hpp")
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION ${BUILD_DIR}/lib${TARGET_BITS})
 
