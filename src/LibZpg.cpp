@@ -61,7 +61,6 @@ void LibZpg::getFileHeaders()
 		ZpgFileHeader fileHeader;
 		m_PackageFile.read(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
 		const unsigned int nameLength = fileHeader.m_FileStart - m_PackageFile.tellg();
-		std::cout << "LL: " << nameLength << std::endl;
 		char aFileName[nameLength+1] = {0};
 		m_PackageFile.read(aFileName, nameLength);
 		aFileName[nameLength] = 0;

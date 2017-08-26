@@ -29,9 +29,9 @@ endif()
 # CONFIGURE FLAGS
 if (TARGET_COMPILER STREQUAL "gcc" OR
     TARGET_COMPILER STREQUAL "clang")
-    set(cxx_flags "-Wall")
+    set(cxx_flags "${CMAKE_CXX_FLAGS} -Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
-    set(cxx_flags "/W4 /WX /EHsc")
+    set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc")
 endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"

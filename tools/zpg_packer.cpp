@@ -100,8 +100,7 @@ bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPat
 			char aNewFromPath[1024], aNewToPath[1024];
 			snprintf(aNewFromPath, sizeof(aNewFromPath), "%s%s/", pFromFullPath, pDirent->d_name);
 			snprintf(aNewToPath, sizeof(aNewToPath), "%s%s/", pToFullPath, pDirent->d_name);
-			closedir(pDir);
-			return addDirectory(zpg, aNewFromPath, aNewToPath);
+			addDirectory(zpg, aNewFromPath, aNewToPath);
 		}
 		else
 		{
@@ -171,7 +170,9 @@ int main(int argc, char *argv[])
 
 			if (delPos == path.size()-1) // Directory
 			{
-				addDirectory(myZ, aAddContentPath, "test/");
+				std::size_t delPosPrev = path.find_last_of("/\\", delPos-1);
+				std::string folderName = (delPosPrev == std::string::npos)?path.substr(0, delPos+1):path.substr(delPosPrev+1, delPos+1);
+				addDirectory(myZ, aAddContentPath, folderName.c_str());
 			}
 			else if (!myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str())) // File
 				std::cerr << "Can't add '" << aAddContentPath << "' to package!" << std::endl;
