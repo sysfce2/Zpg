@@ -38,6 +38,8 @@ int main()
   unsigned long textSize = 0;
   const unsigned char *pFileTextData = myZpg.getFileData("data/mytext.txt", &textSize, false);
   
-  return 0; // Don't need free any data... LibZpg handles it by itself. (But you can 'force' it: myZpg.unloadAll())
+  // Don't need free any data... LibZpg handles it by itself.
+  // But you can 'force' it: myZpg.unloadAll()
+  return 0;
 }
 ```
