@@ -37,6 +37,8 @@ void makeDir(const char *pPath)
 	{
 	#if defined(__linux__)
 		mkdir(path.substr(0, delPos+1).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	#else
+		#error Not Implemented!
 	#endif
 	}
 }
