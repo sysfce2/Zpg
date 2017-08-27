@@ -2,8 +2,9 @@
 #ifndef LIBZPG_HPP
 #define LIBZPG_HPP
 
-#include <fstream>
 #include <map>
+#include <vector>
+#include <string>
 
 struct ZpgHeader
 {
@@ -24,26 +25,30 @@ class LibZpg
     static const char FILE_VERSION[];
 
 public:
-    bool open(const char *pFile);
-    bool create(const char *pFile);
-    void close();
+    LibZpg();
+    ~LibZpg();
+    bool load(const char *pFile);
+    bool saveToFile(const char *pFile);
 
     bool exists(const char *pFullPath);
 
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
     bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
 
-    unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize, bool binary=true);
-    const std::map<std::string, ZpgFileHeader>& getFilesInfo() const { return m_mFileHeaders; }
+    const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize, bool binary=true);
+    const ZpgFileHeader& getFileHeader(const char *pFullPath);
+    const std::map<std::string, unsigned int>& getFilesIndex() const { return m_mFileInfos; }
+    const ZpgHeader& getInfo() const { return m_PackageHeader; }
 
 private:
-    bool checkFile();
-    void getFileHeaders();
+    void unloadAll();
 
 protected:
-    std::fstream m_PackageFile;
     ZpgHeader m_PackageHeader;
-    std::map<std::string, ZpgFileHeader> m_mFileHeaders;
+
+    std::map<std::string, unsigned int> m_mFileInfos;
+    std::vector<ZpgFileHeader> m_vFileHeaders;
+    std::vector<unsigned char*> m_vpFileDatas;
 };
 
 #endif // LIBZPG_HPP

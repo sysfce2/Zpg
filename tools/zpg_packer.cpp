@@ -19,7 +19,10 @@
  */
 #include <LibZpg.hpp>
 #include <cstring>
+#include <cstdio>
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 #if defined(__linux__)
 	#include <dirent.h>
 	#include <sys/stat.h>
@@ -58,20 +61,19 @@ bool extractFile(LibZpg &zpg, const char *pPathFile)
 		else
 			return false;
 	}
-	delete [] pData;
 	return true;
 }
 
 void extractDirectory(LibZpg &zpg, const char *pPath)
 {
-	const std::map<std::string, ZpgFileHeader> &Files = zpg.getFilesInfo();
-	std::map<std::string, ZpgFileHeader>::const_iterator cit = Files.begin();
+	const std::map<std::string, unsigned int> &Files = zpg.getFilesIndex();
+	std::map<std::string, unsigned int>::const_iterator cit = Files.begin();
 	while (cit != Files.end())
 	{
 		std::size_t fpos = (*cit).first.find(pPath, 0);
 		if (fpos == 0)
 		{
-			bool res = extractFile(zpg, (*cit).first.c_str());
+			const bool res = extractFile(zpg, (*cit).first.c_str());
 			std::cout << "Extracting '" << (*cit).first << "'... " << (res?"OK":"FAILURE!") << std::endl;
 		}
 		++cit;
@@ -152,16 +154,14 @@ int main(int argc, char *argv[])
 			}
         }
 
-
-		if (createMode)
-		{
-			bool res = myZ.create(aToFile);
-			std::cout << "Creating File..." << (res?"OK":"FAILURE!") << std::endl;
-		} else if (!myZ.open(aToFile))
-		{
-			std::cerr << "Invalid ZPG File!" << std::endl;
-			return -1;
-		}
+        if (!createMode)
+        {
+			if (!myZ.load(aToFile))
+			{
+				std::cerr << "Invalid ZPG File!" << std::endl;
+				return -1;
+			}
+        }
 
 		if (aAddContentPath[0] != 0)
 		{
@@ -174,8 +174,13 @@ int main(int argc, char *argv[])
 				std::string folderName = (delPosPrev == std::string::npos)?path.substr(0, delPos+1):path.substr(delPosPrev+1, delPos+1);
 				addDirectory(myZ, aAddContentPath, folderName.c_str());
 			}
-			else if (!myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str())) // File
-				std::cerr << "Can't add '" << aAddContentPath << "' to package!" << std::endl;
+			else
+			{
+				const bool res = myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str());
+				std::cout << "Adding '" << aAddContentPath << "'... " << (res?"OK":"FAILURE!") << std::endl;
+			}
+
+			myZ.saveToFile(aToFile);
 		}
 
 		if (aExtractContentPath[0] != 0)
@@ -196,17 +201,17 @@ int main(int argc, char *argv[])
 
 		if (listMode)
 		{
-			const std::map<std::string, ZpgFileHeader> &Files = myZ.getFilesInfo();
-			std::cout << "Num. Files: " << Files.size() << std::endl;
-			std::map<std::string, ZpgFileHeader>::const_iterator cit = Files.begin();
-			while (cit != Files.end())
+			const std::map<std::string, unsigned int> &vFilesIndex = myZ.getFilesIndex();
+			std::cout << "Num. Files: " << vFilesIndex.size() << std::endl;
+			std::map<std::string, unsigned int>::const_iterator cit = vFilesIndex.begin();
+			while (cit != vFilesIndex.end())
 			{
-				std::cout << std::dec << (*cit).first << " [CSize: " << (*cit).second.m_FileSizeComp << "][Size: " << (*cit).second.m_FileSize << "]" << "[StartAt: 0x" << std::hex << std::uppercase << (*cit).second.m_FileStart << "]" << std::nouppercase << std::endl;
+				const ZpgFileHeader &fileHeader = myZ.getFileHeader((*cit).first.c_str());
+				const float pc = (fileHeader.m_FileSize-fileHeader.m_FileSizeComp)*100.0f/fileHeader.m_FileSize;
+				std::cout << std::dec << (*cit).first << " [CSize: " << fileHeader.m_FileSizeComp << "][Size: " << fileHeader.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << "[StartAt: 0x" << std::hex << std::uppercase << fileHeader.m_FileStart << "]" << std::nouppercase << std::endl;
 				++cit;
 			}
 		}
-
-		myZ.close();
     }
     else
     {
