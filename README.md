@@ -13,9 +13,7 @@ int main()
 {
   LibZpg myZpg;
   
-  if (!myZpg.addFromFile("assets/images/image.png", "data/image.png"))
-    return -1;
-  if (!myZpg.addFromFile("assets/docs/text.txt", "data/mytext.txt"))
+  if (!myZpg.addFromFile("assets/images/image.png", "data/image.png") || !myZpg.addFromFile("assets/docs/text.txt", "data/mytext.txt")))
     return -1;
     
   myZpg.saveToFile("myassets.zpg");
@@ -31,7 +29,7 @@ int main()
 int main()
 {
   LibZpg myZpg;
-  if (!myZpg.load("myassests.zpg"))
+  if (!myZpg.load("myassets.zpg"))
     return -1;
     
   unsigned long imageSize = 0;
