@@ -13,7 +13,8 @@ int main()
 {
   LibZpg myZpg;
   
-  if (!myZpg.addFromFile("assets/images/image.png", "data/image.png") || !myZpg.addFromFile("assets/docs/text.txt", "data/mytext.txt")))
+  if (!myZpg.addFromFile("assets/images/image.png", "data/image.png") 
+        || !myZpg.addFromFile("assets/docs/text.txt", "data/mytext.txt")))
     return -1;
     
   myZpg.saveToFile("myassets.zpg");
