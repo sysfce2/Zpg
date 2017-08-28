@@ -69,7 +69,7 @@ bool LibZpg::load(const char *pFile)
 		packageFile.read(reinterpret_cast<char*>(&fileCompData), fileHeader.m_FileSizeComp);
 
 		unsigned long fileSize = fileHeader.m_FileSize;
-		unsigned char *pFileData = new unsigned char[fileSize+1];
+		unsigned char *pFileData = new unsigned char[fileSize];
 		if (uncompress((Bytef*)pFileData, &fileSize, (Bytef*)fileCompData, fileHeader.m_FileSizeComp) != Z_OK)
 		{
 			delete[] pFileData;
@@ -77,7 +77,6 @@ bool LibZpg::load(const char *pFile)
 			std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << aFileName << "'! '" << std::endl;
 		}
 
-		pFileData[fileSize] = 0; // It is assumed that all can be a string
 		m_vpFileDatas.push_back(pFileData);
 		m_mFiles.insert(std::make_pair(std::string(aFileName), i));
 	}
