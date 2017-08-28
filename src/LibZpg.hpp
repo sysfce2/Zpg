@@ -8,7 +8,7 @@
 
 struct ZpgHeader
 {
-	char m_Version[4];
+	unsigned int m_Version;
 	unsigned int m_NumFiles;
 };
 
@@ -22,31 +22,34 @@ struct ZpgFileHeader
 class LibZpg
 {
     static const char FILE_SIGN[];
-    static const char FILE_VERSION[];
 
 public:
     LibZpg();
     ~LibZpg();
+
     bool load(const char *pFile);
     bool saveToFile(const char *pFile);
 
-    bool exists(const char *pFullPath);
+    int exists(const char *pFullPath);
 
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
     bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
 
-    const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize, bool binary=true);
+    const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
     const ZpgFileHeader& getFileHeader(const char *pFullPath);
-    const std::map<std::string, unsigned int>& getFilesIndex() const { return m_mFileInfos; }
-    const ZpgHeader& getInfo() const { return m_PackageHeader; }
+    const std::map<std::string, unsigned int>& getFiles() const { return m_mFiles; }
 
-private:
+    static inline std::string toString(const unsigned char *pData, unsigned long size)
+    {
+    	return std::string(reinterpret_cast<const char*>(pData), size);
+    }
+
     void unloadAll();
 
 protected:
     ZpgHeader m_PackageHeader;
 
-    std::map<std::string, unsigned int> m_mFileInfos;
+    std::map<std::string, unsigned int> m_mFiles;
     std::vector<ZpgFileHeader> m_vFileHeaders;
     std::vector<unsigned char*> m_vpFileDatas;
 };

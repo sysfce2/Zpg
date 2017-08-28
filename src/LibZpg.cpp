@@ -5,9 +5,9 @@
 #include <cstring>
 #include <zlib.h>
 
-const char LibZpg::FILE_SIGN[] = {'Z','P','G','\0'};
-const char LibZpg::FILE_VERSION[] = {'1','.','0','\0'};
+#define ZPG_VERSION	1
 
+const char LibZpg::FILE_SIGN[] = {'Z','P','G','\0'};
 LibZpg::LibZpg()
 {
 	unloadAll();
@@ -23,7 +23,10 @@ bool LibZpg::load(const char *pFile)
 
 	std::ifstream packageFile(pFile, std::ios::binary);
 	if (!packageFile.is_open())
+	{
+		std::cerr << "[LibZpg] Can't open '" << pFile << "'!" << std::endl;
 		return false;
+	}
 
 	// Is ZPG file?
 	char aSign[sizeof(FILE_SIGN)];
@@ -32,12 +35,20 @@ bool LibZpg::load(const char *pFile)
 	packageFile.read(aSign, sizeof(aSign));
 	if (strncmp(aSign, FILE_SIGN, sizeof(aSign)) != 0)
 	{
+		std::cerr << "[LibZpg] The file '" << pFile << "' doesn't appear to be ZPG type..." << std::endl;
 		packageFile.close();
 		return false;
 	}
 
 	// Get File Header
 	packageFile.read(reinterpret_cast<char*>(&m_PackageHeader), sizeof(m_PackageHeader));
+	if (m_PackageHeader.m_Version < 0 || m_PackageHeader.m_Version > ZPG_VERSION)
+	{
+		std::cerr << "[LibZpg] The file '" << pFile << "' uses a version incompatible with the program! Try to upgrade..." << std::endl;
+		packageFile.close();
+		unloadAll();
+		return false;
+	}
 
 	// Get Files
 	for (unsigned int i=0; i<m_PackageHeader.m_NumFiles; i++)
@@ -63,12 +74,12 @@ bool LibZpg::load(const char *pFile)
 		{
 			delete[] pFileData;
 			pFileData = 0x0;
-			std::cerr << "Unexpected ZLib Error using uncompress! '" << std::endl;
+			std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << aFileName << "'! '" << std::endl;
 		}
 
 		pFileData[fileSize] = 0; // It is assumed that all can be a string
 		m_vpFileDatas.push_back(pFileData);
-		m_mFileInfos.insert(std::make_pair(std::string(aFileName), i));
+		m_mFiles.insert(std::make_pair(std::string(aFileName), i));
 	}
 
 	packageFile.close();
@@ -83,11 +94,11 @@ bool LibZpg::saveToFile(const char *pFile)
 		return false;
 
 	packageFile.write(FILE_SIGN, sizeof(FILE_SIGN)); // Sign
-	strncpy(m_PackageHeader.m_Version, FILE_VERSION, sizeof(m_PackageHeader.m_Version));
+	m_PackageHeader.m_Version = ZPG_VERSION; // ZPG Version
 	packageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(m_PackageHeader)); // File Header
 
-	std::map<std::string, unsigned int>::const_iterator cit = m_mFileInfos.begin();
-	while (cit != m_mFileInfos.end())
+	std::map<std::string, unsigned int>::const_iterator cit = m_mFiles.begin();
+	while (cit != m_mFiles.end())
 	{
 		ZpgFileHeader *pFileHeader = &m_vFileHeaders[(*cit).second];
 		const unsigned char *pFileData = m_vpFileDatas[(*cit).second];
@@ -106,7 +117,7 @@ bool LibZpg::saveToFile(const char *pFile)
 			packageFile.write(reinterpret_cast<char*>(compData), compSize);	// File Data
 		}
 		else
-			std::cerr << "Unexpected ZLib Error using compress! '" << std::endl;
+			std::cerr << "[LibZpg] Unexpected ZLib Error using compress with the file '" << (*cit).first << "'! '" << std::endl;
 
 		++cit;
 	}
@@ -127,23 +138,27 @@ void LibZpg::unloadAll()
 	memset(&m_PackageHeader, 0, sizeof(m_PackageHeader));
 }
 
-bool LibZpg::exists(const char *pFullPath)
+int LibZpg::exists(const char *pFullPath)
 {
-	return m_mFileInfos.find(pFullPath) != m_mFileInfos.end();
+	std::map<std::string, unsigned int>::iterator it = m_mFiles.find(pFullPath);
+	if (it != m_mFiles.end())
+		return (*it).second;
+
+	return -1;
 }
 
 bool LibZpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
 {
-	if (exists(pToFullPath))
+	if (exists(pToFullPath) != -1)
 	{
-		std::cerr << "Destination Path '" << pToFullPath << "' already in use" << std::endl;
+		std::cerr << "[LibZpg] Destination Path '" << pToFullPath << "' already in use" << std::endl;
 		return false;
 	}
 
 	std::ifstream file(pFromFullPath, std::ios::binary);
 	if(!file.is_open())
 	{
-		std::cerr << "File '" << pFromFullPath << "' not found" << std::endl;
+		std::cerr << "[LibZpg] File '" << pFromFullPath << "' not found" << std::endl;
 		return false;
 	}
 
@@ -162,10 +177,10 @@ bool LibZpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
 
 bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const char *pToFullPath)
 {
-	if (exists(pToFullPath))
+	if (exists(pToFullPath) != -1)
 	{
 		delete[] pData;
-		std::cerr << "Destination Path '" << pToFullPath << "' already in use" << std::endl;
+		std::cerr << "[LibZpg] Destination Path '" << pToFullPath << "' already in use" << std::endl;
 		return false;
 	}
 
@@ -175,25 +190,25 @@ bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const
 
 	m_vFileHeaders.push_back(fileHeader);
 	m_vpFileDatas.push_back((unsigned char*)pData);
-	m_mFileInfos.insert(std::make_pair(pToFullPath, m_PackageHeader.m_NumFiles));
+	m_mFiles.insert(std::make_pair(pToFullPath, m_PackageHeader.m_NumFiles));
 
 	m_PackageHeader.m_NumFiles += 1;
 
 	return true;
 }
 
-const unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSize, bool binary)
+const unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSize)
 {
-	std::map<std::string, unsigned int>::const_iterator cit = m_mFileInfos.find(pFullPath);
-	if (cit == m_mFileInfos.end())
+	std::map<std::string, unsigned int>::const_iterator cit = m_mFiles.find(pFullPath);
+	if (cit == m_mFiles.end())
 		return 0x0;
 
-	*pfileSize = m_vFileHeaders[(*cit).second].m_FileSize + (binary?0:1);
+	*pfileSize = m_vFileHeaders[(*cit).second].m_FileSize;
 	return m_vpFileDatas[(*cit).second];
 }
 
 const ZpgFileHeader& LibZpg::getFileHeader(const char *pFullPath)
 {
-	std::map<std::string, unsigned int>::const_iterator cit = m_mFileInfos.find(pFullPath);
+	std::map<std::string, unsigned int>::const_iterator cit = m_mFiles.find(pFullPath);
 	return m_vFileHeaders[(*cit).second];
 }

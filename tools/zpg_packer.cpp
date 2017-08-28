@@ -45,6 +45,12 @@ void makeDir(const char *pPath)
 
 bool extractFile(LibZpg &zpg, const char *pPathFile)
 {
+	if (pPathFile[0] == '/' || (strlen(pPathFile) >= 3 && pPathFile[1] == ':' && pPathFile[2] == '\\') || pPathFile[0] == '.' || pPathFile[0] == '$')
+	{
+		std::cerr << "Invalid Destination Folder. For security reasons '" << pPathFile << "' can't be extracted!" << std::endl;
+		return false;
+	}
+
 	unsigned long fileSize = 0;
 	const unsigned char* pData = zpg.getFileData(pPathFile, &fileSize);
 	if (!pData)
@@ -68,15 +74,16 @@ bool extractFile(LibZpg &zpg, const char *pPathFile)
 
 void extractDirectory(LibZpg &zpg, const char *pPath)
 {
-	const std::map<std::string, unsigned int> &Files = zpg.getFilesIndex();
-	std::map<std::string, unsigned int>::const_iterator cit = Files.begin();
-	while (cit != Files.end())
+	const std::map<std::string, unsigned int> &mFiles = zpg.getFiles();
+	std::map<std::string, unsigned int>::const_iterator cit = mFiles.begin();
+	while (cit != mFiles.end())
 	{
 		std::size_t fpos = (*cit).first.find(pPath, 0);
 		if (fpos == 0)
 		{
+			std::cout << "Extracting '" << (*cit).first << "'... ";
 			const bool res = extractFile(zpg, (*cit).first.c_str());
-			std::cout << "Extracting '" << (*cit).first << "'... " << (res?"OK":"FAILURE!") << std::endl;
+			std::cout << (res?"OK":"FAILURE!") << std::endl;
 		}
 		++cit;
 	}
@@ -84,7 +91,7 @@ void extractDirectory(LibZpg &zpg, const char *pPath)
 
 bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPath)
 {
-	bool hasNoErrors = true;
+	bool hasErrors = false;
 #if defined(__linux__)
 	struct dirent *pDirent;
 	DIR *pDir = opendir(pFromFullPath);
@@ -111,8 +118,11 @@ bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPat
 			char aFileFromPath[1024], aFileToPath[1024];
 			snprintf(aFileFromPath, sizeof(aFileFromPath), "%s%s", pFromFullPath, pDirent->d_name);
 			snprintf(aFileToPath, sizeof(aFileToPath), "%s%s", pToFullPath, pDirent->d_name);
-			bool res = zpg.addFromFile(aFileFromPath, aFileToPath);
-			std::cout << "Adding '" << aFileFromPath << "'... " << (res?"OK":"FAILURE!") << std::endl;
+			std::cout << "Adding '" << aFileFromPath << "'... ";
+			const bool res = zpg.addFromFile(aFileFromPath, aFileToPath);
+			if (res)
+				hasErrors = true;
+			std::cout << (res?"OK":"FAILURE!") << std::endl;
 		}
 	}
 
@@ -121,7 +131,7 @@ bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPat
 	#error Not Implemented!
 #endif
 
-	return hasNoErrors;
+	return !hasErrors;
 }
 
 int main(int argc, char *argv[])
@@ -138,7 +148,7 @@ int main(int argc, char *argv[])
     	strncpy(aToFile, argv[1], sizeof(aToFile));
         for (int i=2; i<argc; i++)
         {
-        	if (argv[i][0] == '-' && argv[i][1] == 'A')
+        	if (argv[i][0] == '-' && argv[i][1] == 'A' && i < argc-1)
         	{
         		strncpy(aAddContentPath, argv[++i], sizeof(aAddContentPath));
         	}
@@ -150,7 +160,7 @@ int main(int argc, char *argv[])
         	{
         		listMode = true;
         	}
-        	else if (argv[i][0] == '-' && argv[i][1] == 'E')
+        	else if (argv[i][0] == '-' && argv[i][1] == 'E' && i < argc-1)
 			{
         		strncpy(aExtractContentPath, argv[++i], sizeof(aAddContentPath));
 			}
@@ -178,8 +188,9 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
+				std::cout << "Adding '" << aAddContentPath << "'... ";
 				const bool res = myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str());
-				std::cout << "Adding '" << aAddContentPath << "'... " << (res?"OK":"FAILURE!") << std::endl;
+				std::cout << (res?"OK":"FAILURE!") << std::endl;
 			}
 
 			myZ.saveToFile(aToFile);
@@ -196,17 +207,18 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
+				std::cout << "Extracting '" << aExtractContentPath << "'... ";
 				bool res = extractFile(myZ, aExtractContentPath);
-				std::cout << "Extracting '" << aExtractContentPath << "'... " << (res?"OK":"FAILURE!") << std::endl;
+				std::cout << (res?"OK":"FAILURE!") << std::endl;
 			}
 		}
 
 		if (listMode)
 		{
-			const std::map<std::string, unsigned int> &vFilesIndex = myZ.getFilesIndex();
-			std::cout << "Num. Files: " << vFilesIndex.size() << std::endl;
-			std::map<std::string, unsigned int>::const_iterator cit = vFilesIndex.begin();
-			while (cit != vFilesIndex.end())
+			const std::map<std::string, unsigned int> &mFiles = myZ.getFiles();
+			std::cout << "Num. Files: " << mFiles.size() << std::endl;
+			std::map<std::string, unsigned int>::const_iterator cit = mFiles.begin();
+			while (cit != mFiles.end())
 			{
 				const ZpgFileHeader &fileHeader = myZ.getFileHeader((*cit).first.c_str());
 				const float pc = (fileHeader.m_FileSize-fileHeader.m_FileSizeComp)*100.0f/fileHeader.m_FileSize;
