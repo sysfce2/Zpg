@@ -34,7 +34,7 @@ int main()
     return -1;
     
   unsigned long imageSize = 0;
-  const unsigned char *pFileData = myZpg.getFileData("data/image.png", &fileSize);
+  const unsigned char *pFileData = myZpg.getFileData("data/image.png", &imageSize);
   // Do something with 'pFileData'
   unsigned long textSize = 0;
   const unsigned char *pFileTextData = myZpg.getFileData("data/mytext.txt", &textSize);
