@@ -1,4 +1,4 @@
-# LibZpg
+# libZpg
 Library & Tools for Game Assets Packaging
 
 ## Dependencies
@@ -13,7 +13,7 @@ Library & Tools for Game Assets Packaging
 ## Basic Usage Example
 #### Write
 ```cpp
-#include "LibZpg.hpp"
+#include <Zpg/LibZpg.hpp>
 
 int main()
 {
@@ -31,7 +31,7 @@ int main()
 
 #### Read
 ```cpp
-#include "LibZpg.hpp"
+#include <Zpg/LibZpg.hpp>
 
 int main()
 {
