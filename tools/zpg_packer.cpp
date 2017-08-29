@@ -81,7 +81,7 @@ void extractDirectory(LibZpg &zpg, const char *pPath)
 		std::size_t fpos = (*cit).first.find(pPath, 0);
 		if (fpos == 0)
 		{
-			std::cout << "Extracting '" << (*cit).first << "'... ";
+			std::cout << "Extracting '" << (*cit).first << "'... " << std::flush;
 			const bool res = extractFile(zpg, (*cit).first.c_str());
 			std::cout << (res?"OK":"FAILURE!") << std::endl;
 		}
@@ -118,7 +118,7 @@ bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPat
 			char aFileFromPath[1024], aFileToPath[1024];
 			snprintf(aFileFromPath, sizeof(aFileFromPath), "%s%s", pFromFullPath, pDirent->d_name);
 			snprintf(aFileToPath, sizeof(aFileToPath), "%s%s", pToFullPath, pDirent->d_name);
-			std::cout << "Adding '" << aFileFromPath << "'... ";
+			std::cout << "Adding '" << aFileFromPath << "'... " << std::flush;
 			const bool res = zpg.addFromFile(aFileFromPath, aFileToPath);
 			if (res)
 				hasErrors = true;
@@ -193,7 +193,9 @@ int main(int argc, char *argv[])
 				std::cout << (res?"OK":"FAILURE!") << std::endl;
 			}
 
-			myZ.saveToFile(aToFile);
+			std::cout << "Saving '" << aToFile << "'... " << std::flush;
+			const bool res = myZ.saveToFile(aToFile);
+			std::cout << (res?"OK":"FAILURE!") << std::endl;
 		}
 
 		if (aExtractContentPath[0] != 0)
@@ -207,7 +209,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				std::cout << "Extracting '" << aExtractContentPath << "'... ";
+				std::cout << "Extracting '" << aExtractContentPath << "'... " << std::flush;
 				bool res = extractFile(myZ, aExtractContentPath);
 				std::cout << (res?"OK":"FAILURE!") << std::endl;
 			}

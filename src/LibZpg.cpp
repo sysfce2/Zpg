@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstring>
 #include <zlib.h>
+#include <zopfli/zopfli.h>
 
 #define ZPG_VERSION	1
 
@@ -61,7 +62,7 @@ bool LibZpg::load(const char *pFile)
 		char aFileName[nameLength+1];
 		memset(aFileName, 0, sizeof(aFileName));
 		packageFile.read(aFileName, nameLength);
-		aFileName[nameLength] = 0;
+		aFileName[nameLength] = '\0';
 		m_vFileHeaders.push_back(fileHeader);
 
 		// Get Data
@@ -70,7 +71,7 @@ bool LibZpg::load(const char *pFile)
 
 		unsigned long fileSize = fileHeader.m_FileSize;
 		unsigned char *pFileData = new unsigned char[fileSize];
-		if (uncompress((Bytef*)pFileData, &fileSize, (Bytef*)fileCompData, fileHeader.m_FileSizeComp) != Z_OK)
+		if (uncompress((Bytef *)pFileData, &fileSize, (Bytef *)fileCompData, fileHeader.m_FileSizeComp) != Z_OK)
 		{
 			delete[] pFileData;
 			pFileData = 0x0;
@@ -92,6 +93,10 @@ bool LibZpg::saveToFile(const char *pFile)
 	if (!packageFile.is_open())
 		return false;
 
+	ZopfliOptions options;
+	ZopfliInitOptions(&options);
+	//options.numiterations = 250; // Compression level
+
 	packageFile.write(FILE_SIGN, sizeof(FILE_SIGN)); // Sign
 	m_PackageHeader.m_Version = ZPG_VERSION; // ZPG Version
 	packageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(m_PackageHeader)); // File Header
@@ -103,21 +108,24 @@ bool LibZpg::saveToFile(const char *pFile)
 		const unsigned char *pFileData = m_vpFileDatas[(*cit).second];
 
 		const unsigned long fileSize = pFileHeader->m_FileSize;
-		unsigned long compSize = compressBound(fileSize);
-		unsigned char compData[compSize];
-		memset(compData, 0, sizeof(compData));
-		if (compress((Bytef*)compData, &compSize, (Bytef*)pFileData, fileSize) == Z_OK)
+		unsigned long compSize = 0;
+		unsigned char *pCompData = 0;
+
+		ZopfliCompress(&options, ZOPFLI_FORMAT_ZLIB, pFileData, fileSize, &pCompData, (size_t*)&compSize);
+
+		if (compSize > 0)
 		{
 			pFileHeader->m_FileSizeComp = compSize;
 			pFileHeader->m_FileStart = (unsigned long)packageFile.tellp() + sizeof(ZpgFileHeader) + (*cit).first.length();
 
 			packageFile.write(reinterpret_cast<char*>(pFileHeader), sizeof((*pFileHeader))); // File Header
 			packageFile.write((*cit).first.c_str(), (*cit).first.length()); // File Name
-			packageFile.write(reinterpret_cast<char*>(compData), compSize);	// File Data
+			packageFile.write(reinterpret_cast<char*>(pCompData), compSize);	// File Data
 		}
 		else
 			std::cerr << "[LibZpg] Unexpected ZLib Error using compress with the file '" << (*cit).first << "'! '" << std::endl;
 
+		free(pCompData);
 		++cit;
 	}
 

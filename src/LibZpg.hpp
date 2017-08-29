@@ -14,8 +14,8 @@ struct ZpgHeader
 
 struct ZpgFileHeader
 {
-	unsigned long m_FileSize;
-	unsigned long m_FileSizeComp;
+	unsigned int m_FileSize;
+	unsigned int m_FileSizeComp;
 	unsigned long m_FileStart;
 };
 

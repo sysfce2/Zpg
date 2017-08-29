@@ -10,6 +10,10 @@ set(LIB_NAME "Zpg")
 project("ZLib Pack for Games")
 
 
+# MODULES
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/cmake)
+
+
 # DETECT SYSTEM PARAMS
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(TARGET_BITS "64")
@@ -42,24 +46,24 @@ set(CMAKE_C_FLAGS   "${cxx_flags}"
 
 # REQUIRED LIBRARIES
 find_package(ZLIB REQUIRED)
+find_package(ZOPFLI REQUIRED)
 
 
 # INCLUDES
-set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/src)
+set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${ZOPFLI_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
 
-
-# LIBRARY
+# LIBRARY STATIC
 add_library(${LIB_NAME} STATIC  src/LibZpg.cpp)
-
+target_link_libraries(${LIB_NAME} ${ZLIB_LIBRARIES} ${ZOPFLI_LIBRARIES})
 
 # TOOLS
-add_executable(zpg_packer tools/zpg_packer.cpp)
-target_link_libraries(zpg_packer ${LIB_NAME} ${ZLIB_LIBRARIES})
+add_executable(zpg_packer EXCLUDE_FROM_ALL tools/zpg_packer.cpp)
+target_link_libraries(zpg_packer ${LIB_NAME} ${ZLIB_LIBRARIES} ${ZOPFLI_LIBRARIES})
 
 
 # INSTALL
-install(DIRECTORY src/ DESTINATION ${BUILD_DIR}/include
+install(DIRECTORY src/ DESTINATION include/${LIB_NAME}
         FILES_MATCHING  PATTERN "*.hpp")
-install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION ${BUILD_DIR}/lib${TARGET_BITS})
+install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/)
 
