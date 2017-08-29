@@ -13,11 +13,11 @@ Library & Tools for Game Assets Packaging
 ## Basic Usage Example
 #### Write
 ```cpp
-#include <Zpg/LibZpg.hpp>
+#include <Zpg/Zpg.hpp>
 
 int main()
 {
-  LibZpg myZpg;
+  Zpg myZpg;
   
   if (!myZpg.addFromFile("assets/images/image.png", "data/image.png") 
         || !myZpg.addFromFile("assets/docs/text.txt", "data/mytext.txt"))
@@ -31,11 +31,11 @@ int main()
 
 #### Read
 ```cpp
-#include <Zpg/LibZpg.hpp>
+#include <Zpg/Zpg.hpp>
 
 int main()
 {
-  LibZpg myZpg;
+  Zpg myZpg;
   if (!myZpg.load("myassets.zpg"))
     return -1;
     
