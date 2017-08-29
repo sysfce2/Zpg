@@ -3,6 +3,7 @@ Library & Tools for Game Assets Packaging
 
 ## Dependencies
 - zlib
+- zopfli
 
 ## Basic Usage Example
 #### Write
