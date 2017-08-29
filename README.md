@@ -5,6 +5,11 @@ Library & Tools for Game Assets Packaging
 - zlib
 - zopfli
 
+## Installation
+```sh
+~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
+```
+
 ## Basic Usage Example
 #### Write
 ```cpp
