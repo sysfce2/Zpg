@@ -1,6 +1,6 @@
 /* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
-#ifndef LIBZPG_HPP
-#define LIBZPG_HPP
+#ifndef ZPG_HPP
+#define ZPG_HPP
 
 #include <map>
 #include <vector>
@@ -19,13 +19,13 @@ struct ZpgFileHeader
 	unsigned long m_FileStart;
 };
 
-class LibZpg
+class Zpg
 {
     static const char FILE_SIGN[];
 
 public:
-    LibZpg();
-    ~LibZpg();
+    Zpg();
+    ~Zpg();
 
     bool load(const char *pFile);
     bool saveToFile(const char *pFile);

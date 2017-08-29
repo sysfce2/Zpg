@@ -7,7 +7,7 @@ set(LIB_NAME "Zpg")
 
 
 # THE PROJECT
-project("ZLib Pack for Games")
+project("Zpg Lib")
 
 
 # MODULES
@@ -54,7 +54,7 @@ set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${ZOPFLI_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
-add_library(${LIB_NAME} STATIC  src/LibZpg.cpp)
+add_library(${LIB_NAME} STATIC  src/Zpg.cpp)
 target_link_libraries(${LIB_NAME} ${ZLIB_LIBRARIES} ${ZOPFLI_LIBRARIES})
 
 # TOOLS

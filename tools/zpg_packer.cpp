@@ -17,12 +17,12 @@
  * 		console_packer mypack.zpg -E photo.png				> This extracts 'photo.png' from 'mypack.zpg'
  * 		console_packer mypack.zpg -E data/					> This extracts 'data/' folder from 'mypack.zpg'
  */
-#include <LibZpg.hpp>
 #include <cstring>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include "../src/Zpg.hpp"
 #if defined(__linux__)
 	#include <dirent.h>
 	#include <sys/stat.h>
@@ -43,7 +43,7 @@ void makeDir(const char *pPath)
 	}
 }
 
-bool extractFile(LibZpg &zpg, const char *pPathFile)
+bool extractFile(Zpg &zpg, const char *pPathFile)
 {
 	if (pPathFile[0] == '/' || (strlen(pPathFile) >= 3 && pPathFile[1] == ':' && pPathFile[2] == '\\') || pPathFile[0] == '.' || pPathFile[0] == '$')
 	{
@@ -72,7 +72,7 @@ bool extractFile(LibZpg &zpg, const char *pPathFile)
 	return true;
 }
 
-void extractDirectory(LibZpg &zpg, const char *pPath)
+void extractDirectory(Zpg &zpg, const char *pPath)
 {
 	const std::map<std::string, unsigned int> &mFiles = zpg.getFiles();
 	std::map<std::string, unsigned int>::const_iterator cit = mFiles.begin();
@@ -89,7 +89,7 @@ void extractDirectory(LibZpg &zpg, const char *pPath)
 	}
 }
 
-bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPath)
+bool addDirectory(Zpg &zpg, const char *pFromFullPath, const char *pToFullPath)
 {
 	bool hasErrors = false;
 #if defined(__linux__)
@@ -136,7 +136,7 @@ bool addDirectory(LibZpg &zpg, const char *pFromFullPath, const char *pToFullPat
 
 int main(int argc, char *argv[])
 {
-    LibZpg myZ;
+	Zpg myZpg;
     char aToFile[512] = {0};
     char aAddContentPath[1024] = {0};
     char aExtractContentPath[1024] = {0};
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 
         if (!createMode)
         {
-			if (!myZ.load(aToFile))
+			if (!myZpg.load(aToFile))
 			{
 				std::cerr << "Invalid ZPG File!" << std::endl;
 				return -1;
@@ -184,17 +184,17 @@ int main(int argc, char *argv[])
 			{
 				std::size_t delPosPrev = path.find_last_of("/\\", delPos-1);
 				std::string folderName = (delPosPrev == std::string::npos)?path.substr(0, delPos+1):path.substr(delPosPrev+1, delPos+1);
-				addDirectory(myZ, aAddContentPath, folderName.c_str());
+				addDirectory(myZpg, aAddContentPath, folderName.c_str());
 			}
 			else
 			{
 				std::cout << "Adding '" << aAddContentPath << "'... ";
-				const bool res = myZ.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str());
+				const bool res = myZpg.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str());
 				std::cout << (res?"OK":"FAILURE!") << std::endl;
 			}
 
 			std::cout << "Saving '" << aToFile << "'... " << std::flush;
-			const bool res = myZ.saveToFile(aToFile);
+			const bool res = myZpg.saveToFile(aToFile);
 			std::cout << (res?"OK":"FAILURE!") << std::endl;
 		}
 
@@ -205,24 +205,24 @@ int main(int argc, char *argv[])
 
 			if (delPos == path.size()-1) // Directory
 			{
-				extractDirectory(myZ, aExtractContentPath);
+				extractDirectory(myZpg, aExtractContentPath);
 			}
 			else
 			{
 				std::cout << "Extracting '" << aExtractContentPath << "'... " << std::flush;
-				bool res = extractFile(myZ, aExtractContentPath);
+				bool res = extractFile(myZpg, aExtractContentPath);
 				std::cout << (res?"OK":"FAILURE!") << std::endl;
 			}
 		}
 
 		if (listMode)
 		{
-			const std::map<std::string, unsigned int> &mFiles = myZ.getFiles();
+			const std::map<std::string, unsigned int> &mFiles = myZpg.getFiles();
 			std::cout << "Num. Files: " << mFiles.size() << std::endl;
 			std::map<std::string, unsigned int>::const_iterator cit = mFiles.begin();
 			while (cit != mFiles.end())
 			{
-				const ZpgFileHeader &fileHeader = myZ.getFileHeader((*cit).first.c_str());
+				const ZpgFileHeader &fileHeader = myZpg.getFileHeader((*cit).first.c_str());
 				const float pc = (fileHeader.m_FileSize-fileHeader.m_FileSizeComp)*100.0f/fileHeader.m_FileSize;
 				std::cout << std::dec << (*cit).first << " [CSize: " << fileHeader.m_FileSizeComp << "][Size: " << fileHeader.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << "[StartAt: 0x" << std::hex << std::uppercase << fileHeader.m_FileStart << "]" << std::nouppercase << std::endl;
 				++cit;

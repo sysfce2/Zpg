@@ -1,5 +1,6 @@
 /* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
-#include "LibZpg.hpp"
+#include "Zpg.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -8,17 +9,17 @@
 
 #define ZPG_VERSION	1
 
-const char LibZpg::FILE_SIGN[] = {'Z','P','G','\0'};
-LibZpg::LibZpg()
+const char Zpg::FILE_SIGN[] = {'Z','P','G','\0'};
+Zpg::Zpg()
 {
 	unloadAll();
 }
-LibZpg::~LibZpg()
+Zpg::~Zpg()
 {
 	unloadAll();
 }
 
-bool LibZpg::load(const char *pFile)
+bool Zpg::load(const char *pFile)
 {
 	unloadAll();
 
@@ -87,7 +88,7 @@ bool LibZpg::load(const char *pFile)
 	return true;
 }
 
-bool LibZpg::saveToFile(const char *pFile)
+bool Zpg::saveToFile(const char *pFile)
 {
 	std::ofstream packageFile(pFile, std::ios::binary);
 	if (!packageFile.is_open())
@@ -133,7 +134,7 @@ bool LibZpg::saveToFile(const char *pFile)
 	return true;
 }
 
-void LibZpg::unloadAll()
+void Zpg::unloadAll()
 {
 	m_vFileHeaders.clear();
 
@@ -145,7 +146,7 @@ void LibZpg::unloadAll()
 	memset(&m_PackageHeader, 0, sizeof(m_PackageHeader));
 }
 
-int LibZpg::exists(const char *pFullPath)
+int Zpg::exists(const char *pFullPath)
 {
 	std::map<std::string, unsigned int>::iterator it = m_mFiles.find(pFullPath);
 	if (it != m_mFiles.end())
@@ -154,7 +155,7 @@ int LibZpg::exists(const char *pFullPath)
 	return -1;
 }
 
-bool LibZpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
+bool Zpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
 {
 	if (exists(pToFullPath) != -1)
 	{
@@ -182,7 +183,7 @@ bool LibZpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
 	return addFromMemory(pFileData, length, pToFullPath);
 }
 
-bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const char *pToFullPath)
+bool Zpg::addFromMemory(const unsigned char *pData, unsigned long size, const char *pToFullPath)
 {
 	if (exists(pToFullPath) != -1)
 	{
@@ -204,7 +205,7 @@ bool LibZpg::addFromMemory(const unsigned char *pData, unsigned long size, const
 	return true;
 }
 
-const unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *pfileSize)
+const unsigned char* Zpg::getFileData(const char *pFullPath, unsigned long *pfileSize)
 {
 	std::map<std::string, unsigned int>::const_iterator cit = m_mFiles.find(pFullPath);
 	if (cit == m_mFiles.end())
@@ -214,7 +215,7 @@ const unsigned char* LibZpg::getFileData(const char *pFullPath, unsigned long *p
 	return m_vpFileDatas[(*cit).second];
 }
 
-const ZpgFileHeader& LibZpg::getFileHeader(const char *pFullPath)
+const ZpgFileHeader& Zpg::getFileHeader(const char *pFullPath)
 {
 	std::map<std::string, unsigned int>::const_iterator cit = m_mFiles.find(pFullPath);
 	return m_vFileHeaders[(*cit).second];
