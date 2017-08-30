@@ -1,24 +1,26 @@
 /* (c) Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
 /*****************************************************
  * Syntaxis:
- * 		console_packer <ZPGPackageFile> <options>
+ * 		zpg_packer <ZPGFile> <options>
  *
  * Options:
  * 		- C				> Create the ZPG Package
  * 		- A <path>		> Adds the indicate file into ZPG package
  * 		- L				> List all files inside ZPG package
  * 		- E <file>		> Extract file
+ * 		- I <num>		> Select num. iterations for compression algorithm (high values = slower)
  *
  * Example Usage:
- * 		console_packer mypack.zpg -C -A photo.png			> This will create a new ZPG package 'mypack.zpg' and adds the "photo.png" file
- * 		console_packer mypack.zpg -A notes.txt				> This adds into 'mypack.zpg' the "notes.txt" file
- * 		console_packer mypack.zpg -A one/folder/data/		> This adds into 'mypack.zpg' the folder "data/"
- * 		console_packer mypack.zpg -L						> This list files inside 'mypack.zpg'
- * 		console_packer mypack.zpg -E photo.png				> This extracts 'photo.png' from 'mypack.zpg'
- * 		console_packer mypack.zpg -E data/					> This extracts 'data/' folder from 'mypack.zpg'
+ * 		zpg_packer mypack.zpg -C -A photo.png			> This will create a new ZPG package 'mypack.zpg' and adds the "photo.png" file
+ * 		zpg_packer mypack.zpg -A notes.txt				> This adds into 'mypack.zpg' the "notes.txt" file
+ * 		zpg_packer mypack.zpg -A one/folder/data/		> This adds into 'mypack.zpg' the folder "data/"
+ * 		zpg_packer mypack.zpg -L						> This list files inside 'mypack.zpg'
+ * 		zpg_packer mypack.zpg -E photo.png				> This extracts 'photo.png' from 'mypack.zpg'
+ * 		zpg_packer mypack.zpg -E data/					> This extracts 'data/' folder from 'mypack.zpg'
  */
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -28,6 +30,25 @@
 	#include <sys/stat.h>
 #endif
 
+struct ZpgPackerOptions
+{
+	ZpgPackerOptions()
+	{
+		m_aToFile[0] = 0;
+		m_aAddContentPath[0] = 0;
+		m_aExtractContentPath[0] = 0;
+		m_CreateMode = false;
+		m_ListMode = false;
+		m_NumIterations = 15;
+	}
+
+    char m_aToFile[512];
+    char m_aAddContentPath[1024];
+    char m_aExtractContentPath[1024];
+    bool m_CreateMode;
+    bool m_ListMode;
+    int m_NumIterations;
+};
 
 void makeDir(const char *pPath)
 {
@@ -74,8 +95,8 @@ bool extractFile(Zpg &zpg, const char *pPathFile)
 
 void extractDirectory(Zpg &zpg, const char *pPath)
 {
-	const std::map<std::string, unsigned int> &mFiles = zpg.getFiles();
-	std::map<std::string, unsigned int>::const_iterator cit = mFiles.begin();
+	const std::map<std::string, ZpgFile*> &mFiles = zpg.getFiles();
+	std::map<std::string, ZpgFile*>::const_iterator cit = mFiles.begin();
 	while (cit != mFiles.end())
 	{
 		std::size_t fpos = (*cit).first.find(pPath, 0);
@@ -134,106 +155,111 @@ bool addDirectory(Zpg &zpg, const char *pFromFullPath, const char *pToFullPath)
 	return !hasErrors;
 }
 
+bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
+{
+	if (argc <= 1)
+		return false;
+
+	strncpy(pOptions->m_aToFile, argv[1], sizeof(pOptions->m_aToFile));
+    for (int i=2; i<argc; i++)
+    {
+    	if (argv[i][0] == '-' && argv[i][1] == 'A' && i < argc-1)
+    	{
+    		strncpy(pOptions->m_aAddContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
+    	}
+    	else if (argv[i][0] == '-' && argv[i][1] == 'C')
+    	{
+    		pOptions->m_CreateMode = true;
+    	}
+    	else if (argv[i][0] == '-' && argv[i][1] == 'L')
+    	{
+    		pOptions->m_ListMode = true;
+    	}
+    	else if (argv[i][0] == '-' && argv[i][1] == 'E' && i < argc-1)
+		{
+    		strncpy(pOptions->m_aExtractContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
+		}
+    	else if (argv[i][0] == '-' && argv[i][1] == 'I' && i < argc-1)
+		{
+    		pOptions->m_NumIterations = atoi(argv[++i]);
+		}
+    }
+
+    return true;
+}
+
+
 int main(int argc, char *argv[])
 {
 	Zpg myZpg;
-    char aToFile[512] = {0};
-    char aAddContentPath[1024] = {0};
-    char aExtractContentPath[1024] = {0};
-    bool createMode = false;
-    bool listMode = false;
 
-    if(argc>1)
-    {
-    	strncpy(aToFile, argv[1], sizeof(aToFile));
-        for (int i=2; i<argc; i++)
-        {
-        	if (argv[i][0] == '-' && argv[i][1] == 'A' && i < argc-1)
-        	{
-        		strncpy(aAddContentPath, argv[++i], sizeof(aAddContentPath));
-        	}
-        	else if (argv[i][0] == '-' && argv[i][1] == 'C')
-        	{
-        		createMode = true;
-        	}
-        	else if (argv[i][0] == '-' && argv[i][1] == 'L')
-        	{
-        		listMode = true;
-        	}
-        	else if (argv[i][0] == '-' && argv[i][1] == 'E' && i < argc-1)
-			{
-        		strncpy(aExtractContentPath, argv[++i], sizeof(aAddContentPath));
-			}
-        }
-
-        if (!createMode)
-        {
-			if (!myZpg.load(aToFile))
-			{
-				std::cerr << "Invalid ZPG File!" << std::endl;
-				return -1;
-			}
-        }
-
-		if (aAddContentPath[0] != 0)
-		{
-			std::string path(aAddContentPath);
-			std::size_t delPos = path.find_last_of("/\\");
-
-			if (delPos == path.size()-1) // Directory
-			{
-				std::size_t delPosPrev = path.find_last_of("/\\", delPos-1);
-				std::string folderName = (delPosPrev == std::string::npos)?path.substr(0, delPos+1):path.substr(delPosPrev+1, delPos+1);
-				addDirectory(myZpg, aAddContentPath, folderName.c_str());
-			}
-			else
-			{
-				std::cout << "Adding '" << aAddContentPath << "'... ";
-				const bool res = myZpg.addFromFile(aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str());
-				std::cout << (res?"OK":"FAILURE!") << std::endl;
-			}
-
-			std::cout << "Saving '" << aToFile << "'... " << std::flush;
-			const bool res = myZpg.saveToFile(aToFile);
-			std::cout << (res?"OK":"FAILURE!") << std::endl;
-		}
-
-		if (aExtractContentPath[0] != 0)
-		{
-			std::string path(aAddContentPath);
-			std::size_t delPos = path.find_last_of("/\\");
-
-			if (delPos == path.size()-1) // Directory
-			{
-				extractDirectory(myZpg, aExtractContentPath);
-			}
-			else
-			{
-				std::cout << "Extracting '" << aExtractContentPath << "'... " << std::flush;
-				bool res = extractFile(myZpg, aExtractContentPath);
-				std::cout << (res?"OK":"FAILURE!") << std::endl;
-			}
-		}
-
-		if (listMode)
-		{
-			const std::map<std::string, unsigned int> &mFiles = myZpg.getFiles();
-			std::cout << "Num. Files: " << mFiles.size() << std::endl;
-			std::map<std::string, unsigned int>::const_iterator cit = mFiles.begin();
-			while (cit != mFiles.end())
-			{
-				const ZpgFileHeader &fileHeader = myZpg.getFileHeader((*cit).first.c_str());
-				const float pc = (fileHeader.m_FileSize-fileHeader.m_FileSizeComp)*100.0f/fileHeader.m_FileSize;
-				std::cout << std::dec << (*cit).first << " [CSize: " << fileHeader.m_FileSizeComp << "][Size: " << fileHeader.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << "[StartAt: 0x" << std::hex << std::uppercase << fileHeader.m_FileStart << "]" << std::nouppercase << std::endl;
-				++cit;
-			}
-		}
-    }
-    else
+    ZpgPackerOptions Options;
+    if (!parseInputOptions(&Options, argc, argv))
     {
     	std::cerr << "Invalid Parameters!" << std::endl;
     	return -1;
     }
+
+
+	if (!Options.m_CreateMode)
+	{
+		if (!myZpg.load(Options.m_aToFile))
+			return -1;
+	}
+
+	if (Options.m_aAddContentPath[0] != 0)
+	{
+		std::string path(Options.m_aAddContentPath);
+		std::size_t delPos = path.find_last_of("/\\");
+
+		if (delPos == path.size()-1) // Directory
+		{
+			std::size_t delPosPrev = path.find_last_of("/\\", delPos-1);
+			std::string folderName = (delPosPrev == std::string::npos)?path.substr(0, delPos+1):path.substr(delPosPrev+1, delPos+1);
+			addDirectory(myZpg, Options.m_aAddContentPath, folderName.c_str());
+		}
+		else
+		{
+			std::cout << "Adding '" << Options.m_aAddContentPath << "'... ";
+			const bool res = myZpg.addFromFile(Options.m_aAddContentPath, (delPos == std::string::npos)?path.c_str():path.substr(delPos+1).c_str());
+			std::cout << (res?"OK":"FAILURE!") << std::endl;
+		}
+
+		std::cout << "Saving '" << Options.m_aToFile << "', this is a slow process, please wait... " << std::flush;
+		const bool res = myZpg.saveToFile(Options.m_aToFile, Options.m_NumIterations);
+		std::cout << (res?"SUCCESS":"FAILURE!") << std::endl;
+	}
+
+	if (Options.m_aExtractContentPath[0] != 0)
+	{
+		std::string path(Options.m_aAddContentPath);
+		std::size_t delPos = path.find_last_of("/\\");
+
+		if (delPos == path.size()-1) // Directory
+		{
+			extractDirectory(myZpg, Options.m_aExtractContentPath);
+		}
+		else
+		{
+			std::cout << "Extracting '" << Options.m_aExtractContentPath << "'... " << std::flush;
+			bool res = extractFile(myZpg, Options.m_aExtractContentPath);
+			std::cout << (res?"OK":"FAILURE!") << std::endl;
+		}
+	}
+
+	if (Options.m_ListMode)
+	{
+		const std::map<std::string, ZpgFile*> &mFiles = myZpg.getFiles();
+		std::cout << "Num. Files: " << mFiles.size() << std::endl;
+		std::map<std::string, ZpgFile*>::const_iterator It = mFiles.begin();
+		while (It != mFiles.end())
+		{
+			ZpgFile *pZpgFile = (*It).second;
+			const float pc = (pZpgFile->m_Header.m_FileSize - pZpgFile->m_Header.m_FileSizeComp) * 100.0f / pZpgFile->m_Header.m_FileSize;
+			std::cout << std::dec << (*It).first << " [CSize: " << pZpgFile->m_Header.m_FileSizeComp << "][Size: " << pZpgFile->m_Header.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << "[StartAt: 0x" << std::hex << std::uppercase << pZpgFile->m_Header.m_FileStart << "]" << std::nouppercase << std::endl;
+			++It;
+		}
+	}
 
     return 0;
 }

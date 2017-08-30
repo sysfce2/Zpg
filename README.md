@@ -44,7 +44,7 @@ int main()
   // Do something with 'pFileData'
   unsigned long textSize = 0;
   const unsigned char *pFileTextData = myZpg.getFileData("data/mytext.txt", &textSize);
-  std::string myString = LibZpg::toString(pFileTextData, textSize);
+  std::string myString = Zpg::toString(pFileTextData, textSize);
   // Do something with 'myString'
   
   // Don't need free any data... LibZpg handles it by itself.

@@ -7,25 +7,24 @@ set(FIND_ZPG_PATHS
     /usr)
 
 # find the LibZpg include directory
-find_path(LibZpg_INCLUDE_DIR Zpg/Zpg.hpp
+find_path(ZPG_INCLUDE_DIR Zpg/Zpg.hpp
           PATH_SUFFIXES include
           PATHS ${FIND_ZPG_PATHS})
 
-set(LibZpg_FOUND FALSE)
-if(LibZpg_INCLUDE_DIR)
+set(ZPG_FOUND FALSE)
+if(ZPG_INCLUDE_DIR)
     # release library
-    find_library(LibZpg_LIBRARIES
+    find_library(ZPG_LIBRARIES
                  NAMES Zpg
                  PATH_SUFFIXES lib64 lib
                  PATHS ${FIND_ZPG_PATHS})
-    if (LibZpg_LIBRARIES)
-        set(LibZpg_FOUND TRUE)   
+    if (ZPG_LIBRARIES)
+        set(ZPG_FOUND TRUE)   
     endif()
 endif()
 
 # Search Dependencies (From FindSFML)
 # start with an empty list
-set(LibZpg_DEPENDENCIES)
 set(FIND_ZPG_DEPENDENCIES_NOTFOUND)
 
 # macro that searches for a 3rd-party library
@@ -42,9 +41,9 @@ endmacro()
 find_zpg_dependency(ZOPFLI_LIBRARY "libzopfli" zopfli)
 
 # update the list
-set(LibZpg_DEPENDENCIES ${ZOPFLI_LIBRARY} "-lz")
+set(ZPG_DEPENDENCIES ${ZOPFLI_LIBRARY} "-lz")
 
 # handle success
-if(LibZpg_FOUND)
-    message(STATUS "Found LibZpg in ${LibZpg_INCLUDE_DIR}")
+if(ZPG_FOUND)
+    message(STATUS "Found LibZpg in ${ZPG_INCLUDE_DIR}")
 endif()

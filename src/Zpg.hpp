@@ -14,30 +14,36 @@ struct ZpgHeader
 
 struct ZpgFileHeader
 {
-	unsigned int m_FileSize;
-	unsigned int m_FileSizeComp;
+	unsigned long m_FileSize;
+	unsigned long m_FileSizeComp;
 	unsigned long m_FileStart;
+};
+
+struct ZpgFile
+{
+	ZpgFileHeader m_Header;
+	unsigned char *m_pData;
 };
 
 class Zpg
 {
-    static const char FILE_SIGN[];
+	static const char FILE_SIGN[];
 
 public:
     Zpg();
     ~Zpg();
 
-    bool load(const char *pFile);
-    bool saveToFile(const char *pFile);
+    bool open(const char *pFile);
+    void close();
 
-    int exists(const char *pFullPath);
+    bool load(const char *pFile);
+    bool saveToFile(const char *pFile, int numIterations = 15);
 
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
-    bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath);
+    bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath); // Can't be >2GB
 
-    const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize);
-    const ZpgFileHeader& getFileHeader(const char *pFullPath);
-    const std::map<std::string, unsigned int>& getFiles() const { return m_mFiles; }
+    const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize) const;
+    const std::map<std::string, ZpgFile*>& getFiles() const { return m_mFiles; }
 
     static inline std::string toString(const unsigned char *pData, unsigned long size)
     {
@@ -48,10 +54,10 @@ public:
 
 protected:
     ZpgHeader m_PackageHeader;
+    std::map<std::string, ZpgFile*> m_mFiles;
 
-    std::map<std::string, unsigned int> m_mFiles;
-    std::vector<ZpgFileHeader> m_vFileHeaders;
-    std::vector<unsigned char*> m_vpFileDatas;
+private:
+    bool exists(const char *pFullPath) const;
 };
 
 #endif // LIBZPG_HPP
