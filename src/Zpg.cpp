@@ -19,41 +19,46 @@ Zpg::~Zpg()
 	unloadAll();
 }
 
-bool Zpg::load(const char *pFile)
+bool Zpg::load(std::string File)
 {
 	unloadAll();
 
-	std::ifstream PackageFile(pFile, std::ios::binary);
+	std::ifstream PackageFile(File.c_str(), std::ios::binary);
 	if (!PackageFile.is_open())
 	{
-		std::cerr << "[LibZpg] Can't open '" << pFile << "'!" << std::endl;
+		std::cerr << "[LibZpg] Can't open '" << File << "'!" << std::endl;
 		return false;
 	}
+
+	// File Size
+	unsigned long packageSize = 0ul;
+	PackageFile.seekg(0, std::ios::end);
+	packageSize = PackageFile.tellg();
+	PackageFile.seekg(0, std::ios::beg);
 
 	// Is ZPG file?
 	char aSign[sizeof(FILE_SIGN)];
 	memset(aSign, 0, sizeof(aSign));
-	PackageFile.seekg(0, std::ios::beg);
 	PackageFile.read(aSign, sizeof(aSign));
 	if (strncmp(aSign, FILE_SIGN, sizeof(aSign)) != 0)
 	{
-		std::cerr << "[LibZpg] The file '" << pFile << "' doesn't appear to be ZPG type..." << std::endl;
+		std::cerr << "[LibZpg] The file '" << File << "' doesn't appear to be ZPG type..." << std::endl;
 		PackageFile.close();
 		return false;
 	}
 
 	// Get File Header
-	PackageFile.read(reinterpret_cast<char*>(&m_PackageHeader), sizeof(m_PackageHeader));
-	if (m_PackageHeader.m_Version < 0 || m_PackageHeader.m_Version > ZPG_VERSION)
+	PackageFile.read(reinterpret_cast<char*>(&m_PackageVersion), sizeof(m_PackageVersion));
+	if (m_PackageVersion < 0 || m_PackageVersion > ZPG_VERSION)
 	{
-		std::cerr << "[LibZpg] The file '" << pFile << "' uses a version incompatible with the program! Try to upgrade..." << std::endl;
+		std::cerr << "[LibZpg] The file '" << File << "' uses a version incompatible with the program! Try to upgrade..." << std::endl;
 		PackageFile.close();
 		unloadAll();
 		return false;
 	}
 
 	// Get Files
-	for (unsigned int i=0; i<m_PackageHeader.m_NumFiles; i++)
+	while (static_cast<unsigned long>(PackageFile.tellg()) < packageSize)
 	{
 		ZpgFile *pZpgFile = new ZpgFile();
 		memset(pZpgFile, 0, sizeof(ZpgFile));
@@ -87,9 +92,9 @@ bool Zpg::load(const char *pFile)
 	return true;
 }
 
-bool Zpg::saveToFile(const char *pFile, int numIterations)
+bool Zpg::saveToFile(std::string File, int numIterations)
 {
-	std::ofstream PackageFile(pFile, std::ios::binary);
+	std::ofstream PackageFile(File.c_str(), std::ios::binary);
 	if (!PackageFile.is_open())
 		return false;
 
@@ -98,14 +103,14 @@ bool Zpg::saveToFile(const char *pFile, int numIterations)
 	Options.numiterations = numIterations; // Compression level
 
 	PackageFile.write(FILE_SIGN, sizeof(FILE_SIGN)); // Sign
-	m_PackageHeader.m_Version = ZPG_VERSION; // ZPG Version
-	PackageFile.write(reinterpret_cast<const char*>(&m_PackageHeader), sizeof(m_PackageHeader)); // File Header
+	m_PackageVersion = ZPG_VERSION; // ZPG Version
+	PackageFile.write(reinterpret_cast<const char*>(&m_PackageVersion), sizeof(m_PackageVersion)); // File Header
 
 	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
 		ZpgFile *pZpgFile = (*It).second;
-		unsigned long CompSize = 0;
+		unsigned long CompSize = 0ul;
 		unsigned char *pCompData = NULL;
 
 		ZopfliCompress(&Options, ZOPFLI_FORMAT_ZLIB, pZpgFile->m_pData, pZpgFile->m_Header.m_FileSize, &pCompData, &CompSize);
@@ -142,27 +147,27 @@ void Zpg::unloadAll()
 	}
 	m_mFiles.clear();
 
-	memset(&m_PackageHeader, 0, sizeof(m_PackageHeader));
+	m_PackageVersion = ZPG_VERSION;
 }
 
-bool Zpg::exists(const char *pFullPath) const
+bool Zpg::exists(std::string FullPath) const
 {
-	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(pFullPath);
+	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
 	return (It != m_mFiles.end());
 }
 
-bool Zpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
+bool Zpg::addFromFile(std::string FromFullPath, std::string ToFullPath)
 {
-	if (exists(pToFullPath))
+	if (exists(ToFullPath))
 	{
-		std::cerr << "[LibZpg] Destination Path '" << pToFullPath << "' already in use" << std::endl;
+		std::cerr << "[LibZpg] Destination Path '" << ToFullPath << "' already in use" << std::endl;
 		return false;
 	}
 
-	std::ifstream File(pFromFullPath, std::ios::binary);
+	std::ifstream File(FromFullPath.c_str(), std::ios::binary);
 	if(!File.is_open())
 	{
-		std::cerr << "[LibZpg] File '" << pFromFullPath << "' not found" << std::endl;
+		std::cerr << "[LibZpg] File '" << FromFullPath << "' not found" << std::endl;
 		return false;
 	}
 
@@ -176,15 +181,15 @@ bool Zpg::addFromFile(const char *pFromFullPath, const char *pToFullPath)
 
 	File.close();
 
-	return addFromMemory(FileData, Length, pToFullPath);
+	return addFromMemory(FileData, Length, ToFullPath);
 }
 
-bool Zpg::addFromMemory(const unsigned char *pData, unsigned long size, const char *pToFullPath)
+bool Zpg::addFromMemory(const unsigned char *pData, unsigned long size, std::string ToFullPath)
 {
-	if (exists(pToFullPath))
+	if (exists(ToFullPath))
 	{
 		delete[] pData;
-		std::cerr << "[LibZpg] Destination Path '" << pToFullPath << "' already in use" << std::endl;
+		std::cerr << "[LibZpg] Destination Path '" << ToFullPath << "' already in use" << std::endl;
 		return false;
 	}
 
@@ -200,19 +205,17 @@ bool Zpg::addFromMemory(const unsigned char *pData, unsigned long size, const ch
 		return false;
 	memcpy(pZpgFile->m_pData, pData, size);
 
-	m_mFiles.insert(std::make_pair(std::string(pToFullPath), pZpgFile));
-
-	++m_PackageHeader.m_NumFiles;
+	m_mFiles.insert(std::make_pair(ToFullPath, pZpgFile));
 
 	return true;
 }
 
-const unsigned char* Zpg::getFileData(const char *pFullPath, unsigned long *pfileSize) const
+const unsigned char* Zpg::getFileData(std::string FullPath, unsigned long *pFileSize) const
 {
-	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(pFullPath);
+	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
 	if (It == m_mFiles.end())
 		return 0x0;
 
-	*pfileSize = (*It).second->m_Header.m_FileSize;
+	*pFileSize = (*It).second->m_Header.m_FileSize;
 	return (*It).second->m_pData;
 }

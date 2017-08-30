@@ -6,11 +6,6 @@
 #include <vector>
 #include <string>
 
-struct ZpgHeader
-{
-	unsigned int m_Version;
-	unsigned int m_NumFiles;
-};
 
 struct ZpgFileHeader
 {
@@ -32,13 +27,13 @@ public:
     Zpg();
     ~Zpg();
 
-    bool load(const char *pFile);
-    bool saveToFile(const char *pFile, int numIterations = 15);
+    bool load(std::string File);
+    bool saveToFile(std::string File, int numIterations = 15);
 
-    bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
-    bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath); // Can't be >2GiB
+    bool addFromFile(std::string FromFullPath, std::string ToFullPath);
+    bool addFromMemory(const unsigned char *pData, unsigned long size, std::string FullPath); // Can't be >2GiB
 
-    const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize) const;
+    const unsigned char* getFileData(std::string FullPath, unsigned long *pFileSize) const;
     const std::map<std::string, ZpgFile*>& getFiles() const { return m_mFiles; }
 
     static inline std::string toString(const unsigned char *pData, unsigned long size)
@@ -49,11 +44,11 @@ public:
     void unloadAll();
 
 protected:
-    ZpgHeader m_PackageHeader;
+    unsigned short m_PackageVersion;
     std::map<std::string, ZpgFile*> m_mFiles;
 
 private:
-    bool exists(const char *pFullPath) const;
+    bool exists(std::string FullPath) const;
 };
 
 #endif // LIBZPG_HPP
