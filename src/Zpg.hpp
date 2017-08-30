@@ -33,9 +33,6 @@ public:
     Zpg();
     ~Zpg();
 
-    bool open(const char *pFile);
-    void close();
-
     bool load(const char *pFile);
     bool saveToFile(const char *pFile, int numIterations = 15);
 
