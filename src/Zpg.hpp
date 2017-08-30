@@ -1,4 +1,4 @@
-/* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
+/* (c) Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
 #ifndef ZPG_HPP
 #define ZPG_HPP
 
@@ -16,7 +16,6 @@ struct ZpgFileHeader
 {
 	unsigned long m_FileSize;
 	unsigned long m_FileSizeComp;
-	unsigned long m_FileStart;
 };
 
 struct ZpgFile
@@ -37,7 +36,7 @@ public:
     bool saveToFile(const char *pFile, int numIterations = 15);
 
     bool addFromFile(const char *pFromFullPath, const char *pToFullPath);
-    bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath); // Can't be >2GB
+    bool addFromMemory(const unsigned char *pData, unsigned long size, const char *pFullPath); // Can't be >2GiB
 
     const unsigned char* getFileData(const char *pFullPath, unsigned long *pfileSize) const;
     const std::map<std::string, ZpgFile*>& getFiles() const { return m_mFiles; }

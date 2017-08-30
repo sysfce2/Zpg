@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
 		{
 			ZpgFile *pZpgFile = (*It).second;
 			const float pc = (pZpgFile->m_Header.m_FileSize - pZpgFile->m_Header.m_FileSizeComp) * 100.0f / pZpgFile->m_Header.m_FileSize;
-			std::cout << std::dec << (*It).first << " [CSize: " << pZpgFile->m_Header.m_FileSizeComp << "][Size: " << pZpgFile->m_Header.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << "[StartAt: 0x" << std::hex << std::uppercase << pZpgFile->m_Header.m_FileStart << "]" << std::nouppercase << std::endl;
+			std::cout << std::dec << (*It).first << " [CSize: " << pZpgFile->m_Header.m_FileSizeComp << "][Size: " << pZpgFile->m_Header.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << std::endl;
 			++It;
 		}
 	}

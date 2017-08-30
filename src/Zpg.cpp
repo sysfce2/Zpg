@@ -1,4 +1,4 @@
-/* (c) Juan McKernel & Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
+/* (c) Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
 #include "Zpg.hpp"
 
 #include <iostream>
@@ -59,11 +59,12 @@ bool Zpg::load(const char *pFile)
 		memset(pZpgFile, 0, sizeof(ZpgFile));
 		// Get Header
 		PackageFile.read(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header));
-		const unsigned int NameLength = pZpgFile->m_Header.m_FileStart - PackageFile.tellg();
-		char aFileName[NameLength+1];
-		memset(aFileName, 0, sizeof(aFileName));
-		PackageFile.read(aFileName, NameLength);
-		aFileName[NameLength] = '\0';
+
+		// Get Name
+		std::string FileName;
+		char c = 0;
+		while (PackageFile.read(&c, 1) && c != 0)
+			FileName += c;
 
 		// Get Data
 		unsigned char FileCompData[pZpgFile->m_Header.m_FileSizeComp];
@@ -75,10 +76,10 @@ bool Zpg::load(const char *pFile)
 		{
 			delete[] pZpgFile->m_pData;
 			pZpgFile->m_pData = 0x0;
-			std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << aFileName << "'! '" << std::endl;
+			std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << FileName << "'! '" << std::endl;
 		}
 
-		m_mFiles.insert(std::make_pair(std::string(aFileName), pZpgFile));
+		m_mFiles.insert(std::make_pair(FileName, pZpgFile));
 	}
 
 	PackageFile.close();
@@ -112,10 +113,9 @@ bool Zpg::saveToFile(const char *pFile, int numIterations)
 		if (pCompData)
 		{
 			pZpgFile->m_Header.m_FileSizeComp = CompSize;
-			pZpgFile->m_Header.m_FileStart = (unsigned long)PackageFile.tellp() + sizeof(ZpgFileHeader) + (*It).first.length();
 
 			PackageFile.write(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header)); // File Header
-			PackageFile.write((*It).first.c_str(), (*It).first.length()); // File Name
+			PackageFile << (*It).first << '\0'; // File Name
 			PackageFile.write(reinterpret_cast<char*>(pCompData), CompSize);	// File Data
 
 			free(pCompData);
@@ -202,7 +202,7 @@ bool Zpg::addFromMemory(const unsigned char *pData, unsigned long size, const ch
 
 	m_mFiles.insert(std::make_pair(std::string(pToFullPath), pZpgFile));
 
-	m_PackageHeader.m_NumFiles += 1;
+	++m_PackageHeader.m_NumFiles;
 
 	return true;
 }
