@@ -3,7 +3,6 @@
 #define ZPG_HPP
 
 #include <map>
-#include <vector>
 #include <string>
 
 
@@ -50,7 +49,7 @@ protected:
 
 private:
     bool exists(std::string FullPath) const;
-    void swap(unsigned char *pData, unsigned long Size);
+    void swap(unsigned char *pData, unsigned long Size) const;
 };
 
 #endif // LIBZPG_HPP

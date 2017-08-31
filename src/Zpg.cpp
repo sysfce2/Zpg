@@ -160,7 +160,7 @@ bool Zpg::exists(std::string FullPath) const
 	return (It != m_mFiles.end());
 }
 
-void Zpg::swap(unsigned char *pData, unsigned long Size)
+void Zpg::swap(unsigned char *pData, unsigned long Size) const
 {
 	unsigned char Temp[Size];
 	memcpy(Temp, pData, Size);
