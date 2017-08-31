@@ -1,6 +1,6 @@
 /* (c) Alexandre Díaz. See licence.txt in the root of the distribution for more information. */
 /*****************************************************
- * Syntaxis:
+ * Syntaxes:
  * 		zpg_packer <ZPGFile> <options>
  *
  * Options:
@@ -193,7 +193,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 		return false;
 
 	strncpy(pOptions->m_aToFile, argv[1], sizeof(pOptions->m_aToFile));
-    for (int i=2; i<argc; i++)
+    for (int i=2; i<argc; ++i)
     {
     	if (strlen(argv[i]) < 2 || argv[i][0] != '-')
     		continue;

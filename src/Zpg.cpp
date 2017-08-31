@@ -162,9 +162,13 @@ bool Zpg::exists(std::string FullPath) const
 
 void Zpg::swap(unsigned char *pData, unsigned long Size) const
 {
-	unsigned char Temp[Size];
-	memcpy(Temp, pData, Size);
-	for (unsigned long i=Size-1,e=0; e<Size; pData[e++]=Temp[--i]);
+	const unsigned long m = Size/2ul;
+	for (unsigned long i=Size-1,e=0; e<m; --i,++e)
+	{
+		const unsigned char Temp = pData[e];
+		pData[e] = pData[i];
+		pData[i] = Temp;
+	}
 }
 
 bool Zpg::removeFile(std::string FullPath)
