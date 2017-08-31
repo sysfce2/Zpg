@@ -52,7 +52,16 @@ bool Zpg::load(std::string File)
 		ZpgFile *pZpgFile = new ZpgFile();
 		memset(pZpgFile, 0, sizeof(ZpgFile));
 		// Get Header
+	#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 		PackageFile.read(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header));
+	#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+		unsigned char Temp[sizeof(ZpgFileHeader)];
+		PackageFile.read(reinterpret_cast<char*>(Temp), sizeof(Temp));
+		swap(Temp, sizeof(Temp));
+		pZpgFile->m_Header = *(reinterpret_cast<ZpgFileHeader*>(Temp));
+	#else
+		#error Not Implemented!
+	#endif
 
 		// Get Name
 		std::string FileName;
@@ -107,7 +116,16 @@ bool Zpg::saveToFile(std::string File, int NumIterations)
 		{
 			pZpgFile->m_Header.m_FileSizeComp = CompSize;
 
+		#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 			PackageFile.write(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header)); // File Header
+		#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			unsigned char Temp[sizeof(pZpgFile->m_Header)];
+			memcpy(Temp, reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(Temp));
+			swap(Temp, sizeof(Temp));
+			PackageFile.write(reinterpret_cast<char*>(Temp), sizeof(Temp)); // File Header
+		#else
+			#error Not Implemented!
+		#endif
 			PackageFile << (*It).first << '\0'; // File Name
 			PackageFile.write(reinterpret_cast<char*>(pCompData), CompSize);	// File Data
 
@@ -140,6 +158,18 @@ bool Zpg::exists(std::string FullPath) const
 {
 	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
 	return (It != m_mFiles.end());
+}
+
+void Zpg::swap(unsigned char *pData, unsigned long Size)
+{
+	unsigned char Temp[Size];
+	memcpy(Temp, pData, Size);
+	for (unsigned long i=Size-1, e=0; ; --i, e++)
+	{
+		pData[e] = Temp[i];
+		if (i == 0ul)
+			break;
+	}
 }
 
 bool Zpg::removeFile(std::string FullPath)

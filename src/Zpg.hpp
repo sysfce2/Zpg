@@ -50,6 +50,7 @@ protected:
 
 private:
     bool exists(std::string FullPath) const;
+    void swap(unsigned char *pData, unsigned long Size);
 };
 
 #endif // LIBZPG_HPP
