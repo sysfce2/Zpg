@@ -164,12 +164,7 @@ void Zpg::swap(unsigned char *pData, unsigned long Size) const
 {
 	unsigned char Temp[Size];
 	memcpy(Temp, pData, Size);
-	for (unsigned long i=Size-1, e=0; ; --i, e++)
-	{
-		pData[e] = Temp[i];
-		if (i == 0ul)
-			break;
-	}
+	for (unsigned long i=Size-1,e=0; e<Size; pData[e++]=Temp[--i]);
 }
 
 bool Zpg::removeFile(std::string FullPath)
