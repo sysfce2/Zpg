@@ -28,23 +28,24 @@ public:
     ~Zpg();
 
     bool load(std::string File);
-    bool saveToFile(std::string File, int numIterations = 15);
+    bool saveToFile(std::string File, int NumIterations = 15);
 
-    bool addFromFile(std::string FromFullPath, std::string ToFullPath);
-    bool addFromMemory(const unsigned char *pData, unsigned long size, std::string FullPath); // Can't be >2GiB
+    bool addFromFile(std::string FromFullPath, std::string ToFullPath, bool Overwrite = false);
+    bool addFromMemory(const unsigned char *pData, unsigned long Size, std::string FullPath, bool Overwrite = false); // Can't be >2GiB
+    bool removeFile(std::string FullPath);
+    bool moveFile(std::string OldFullPath, std::string NewFullPath);
 
     const unsigned char* getFileData(std::string FullPath, unsigned long *pFileSize) const;
     const std::map<std::string, ZpgFile*>& getFiles() const { return m_mFiles; }
 
-    static inline std::string toString(const unsigned char *pData, unsigned long size)
+    static inline std::string toString(const unsigned char *pData, unsigned long Size)
     {
-    	return std::string(reinterpret_cast<const char*>(pData), size);
+    	return std::string(reinterpret_cast<const char*>(pData), Size);
     }
 
     void unloadAll();
 
 protected:
-    unsigned short m_PackageVersion;
     std::map<std::string, ZpgFile*> m_mFiles;
 
 private:
