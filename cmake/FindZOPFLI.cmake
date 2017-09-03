@@ -26,4 +26,6 @@ endif()
 # handle success
 if(ZOPFLI_FOUND)
     message(STATUS "Found ZOPFLI in ${ZOPFLI_INCLUDE_DIR}")
+else()
+    message(STATUS "ZOPFLI Not Found... using 'external' location...")
 endif()

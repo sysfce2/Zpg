@@ -49,6 +49,10 @@ find_package(ZLIB REQUIRED)
 find_package(ZOPFLI REQUIRED)
 
 
+# EXTERNAL IF REQUIRED
+add_subdirectory(external/ libs/)
+
+
 # INCLUDES
 set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${ZOPFLI_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
@@ -59,7 +63,7 @@ target_link_libraries(${LIB_NAME} ${ZLIB_LIBRARIES} ${ZOPFLI_LIBRARIES})
 
 # TOOLS
 add_executable(zpg_packer EXCLUDE_FROM_ALL tools/zpg_packer.cpp)
-target_link_libraries(zpg_packer ${LIB_NAME} ${ZLIB_LIBRARIES} ${ZOPFLI_LIBRARIES})
+target_link_libraries(zpg_packer ${LIB_NAME})
 
 
 # INSTALL
