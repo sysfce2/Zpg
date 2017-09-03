@@ -45,8 +45,8 @@ set(CMAKE_C_FLAGS   "${cxx_flags}"
 
 
 # REQUIRED LIBRARIES
-find_package(ZLIB REQUIRED)
-find_package(ZOPFLI REQUIRED)
+find_package(ZLIB)
+find_package(ZOPFLI)
 
 
 # EXTERNAL IF REQUIRED
