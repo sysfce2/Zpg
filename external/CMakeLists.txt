@@ -19,7 +19,7 @@ endif()
 
 # zlib
 if (NOT(ZLIB_FOUND))
-    message(STATUS "ZOPFLI Not Found... using 'external' location...")
+    message(STATUS "ZLIB Not Found... using 'external' location...")
     add_library(zlib STATIC     zlib/adler32.c
                                 zlib/compress.c
                                 zlib/crc32.c
