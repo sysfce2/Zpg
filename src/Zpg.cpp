@@ -107,7 +107,7 @@ bool Zpg::saveToFile(std::string File, int NumIterations)
 	while (It != m_mFiles.end())
 	{
 		ZpgFile *pZpgFile = (*It).second;
-		unsigned long CompSize = 0ul;
+		size_t CompSize = 0ul;
 		unsigned char *pCompData = NULL;
 
 		ZopfliCompress(&Options, ZOPFLI_FORMAT_ZLIB, pZpgFile->m_pData, pZpgFile->m_Header.m_FileSize, &pCompData, &CompSize);

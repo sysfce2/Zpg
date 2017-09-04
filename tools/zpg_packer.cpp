@@ -35,7 +35,12 @@
 #if defined(__linux__)
 	#include <dirent.h>
 	#include <sys/stat.h>
+#elif defined(__WIN32__)
+    #include <windows.h>
+    #include <direct.h>
 #endif
+
+using namespace std;
 
 struct ZpgPackerOptions
 {
@@ -73,6 +78,8 @@ void makeDir(const char *pPath)
 	{
 	#if defined(__linux__)
 		mkdir(path.substr(0, delPos+1).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    #elif defined(__WIN32__)
+        CreateDirectory(path.substr(0, delPos).c_str(), NULL);
 	#else
 		#error Not Implemented!
 	#endif
@@ -180,6 +187,47 @@ bool addDirectory(Zpg &zpg, const char *pFromFullPath, const char *pToFullPath, 
 	}
 
 	closedir(pDir);
+#elif defined(__WIN32__)
+    char wildcard[FILENAME_MAX];
+    snprintf(wildcard, FILENAME_MAX, "%s*", pFromFullPath);
+
+    HANDLE hFind;
+    WIN32_FIND_DATA data;
+
+    hFind = FindFirstFile(wildcard, &data);
+    if (hFind == INVALID_HANDLE_VALUE)
+    {
+        std::cerr << "Failed to open input directory" << std::endl;
+		return false;
+    }
+    else
+    {
+        do {
+            if (strncmp(data.cFileName, ".", sizeof(data.cFileName)) == 0 || strncmp(data.cFileName, "..", sizeof(data.cFileName)) == 0)
+                continue;
+
+            if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+                char aNewFromPath[1024], aNewToPath[1024];
+                snprintf(aNewFromPath, sizeof(aNewFromPath), "%s%s/", pFromFullPath, data.cFileName);
+                snprintf(aNewToPath, sizeof(aNewToPath), "%s%s/", pToFullPath, data.cFileName);
+                addDirectory(zpg, aNewFromPath, aNewToPath, Overwrite);
+            }
+            else
+            {
+                char aFileFromPath[1024], aFileToPath[1024];
+                snprintf(aFileFromPath, sizeof(aFileFromPath), "%s%s", pFromFullPath, data.cFileName);
+                snprintf(aFileToPath, sizeof(aFileToPath), "%s%s", pToFullPath, data.cFileName);
+                std::cout << "Adding '" << aFileFromPath << "'... " << std::flush;
+                const bool res = zpg.addFromFile(aFileFromPath, aFileToPath, Overwrite);
+                if (!res)
+                    hasErrors = true;
+                std::cout << (res?"OK":"FAILURE!") << std::endl;
+            }
+        } while (FindNextFile(hFind, &data));
+
+        FindClose(hFind);
+    }
 #else
 	#error Not Implemented!
 #endif
