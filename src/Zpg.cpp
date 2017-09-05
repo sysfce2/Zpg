@@ -110,7 +110,18 @@ bool Zpg::saveToFile(std::string File, int NumIterations)
 		size_t CompSize = 0ul;
 		unsigned char *pCompData = NULL;
 
-		ZopfliCompress(&Options, ZOPFLI_FORMAT_ZLIB, pZpgFile->m_pData, pZpgFile->m_Header.m_FileSize, &pCompData, &CompSize);
+		if (Options.numiterations < 1)
+		{
+			CompSize = compressBound(pZpgFile->m_Header.m_FileSize);
+			pCompData = (unsigned char*)malloc(sizeof(unsigned char)*CompSize);	// C-Style to equal with Zopfli
+			if (compress(pCompData, &CompSize, pZpgFile->m_pData, pZpgFile->m_Header.m_FileSize) != Z_OK)
+			{
+				free(pCompData);
+				pCompData = 0x0;
+			}
+		}
+		else
+			ZopfliCompress(&Options, ZOPFLI_FORMAT_ZLIB, pZpgFile->m_pData, pZpgFile->m_Header.m_FileSize, &pCompData, &CompSize);
 
 		if (pCompData)
 		{

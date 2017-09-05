@@ -8,7 +8,7 @@
  * 		- A <path>					> Adds the indicate file/directory into ZPG package
  * 		- L							> List all files inside ZPG package
  * 		- E <file>					> Extract file
- * 		- I <num>					> Select num. iterations for compression algorithm (high values = slower)
+ * 		- I <num>					> Select num. iterations for compression algorithm (high values = slower | 0 = ZLib)
  * 		- R <path>					> Remove
  * 		- O							> Overwrite mode
  * 		- M <path> <new path>		> Move the file to new path
@@ -39,8 +39,6 @@
     #include <windows.h>
     #include <direct.h>
 #endif
-
-using namespace std;
 
 struct ZpgPackerOptions
 {
@@ -374,7 +372,10 @@ int main(int argc, char *argv[])
 
 	if (NeedWrite)
 	{
-		std::cout << "Saving '" << Options.m_aToFile << "', this is a slow process, please wait... " << std::flush;
+		if (Options.m_NumIterations < 1)
+			std::cout << "Saving '" << Options.m_aToFile << "', using ZLib... " << std::flush;
+		else
+			std::cout << "Saving '" << Options.m_aToFile << "', using Zopfli, this is a slow process, please wait... " << std::flush;
 		const bool res = myZpg.saveToFile(Options.m_aToFile, Options.m_NumIterations);
 		std::cout << (res?"SUCCESS":"FAILURE!") << std::endl;
 	}
