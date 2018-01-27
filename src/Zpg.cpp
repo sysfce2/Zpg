@@ -220,7 +220,7 @@ bool Zpg::addFromFile(std::string FromFullPath, std::string ToFullPath, bool Ove
 	}
 
 	File.seekg(0, std::ios::end);
-	long long Length = static_cast<long long>(File.tellg());
+	const unsigned long Length = static_cast<const unsigned long>(File.tellg());
 	File.seekg(0, std::ios::beg);
 
 	unsigned char *pFileData = new unsigned char[Length];
