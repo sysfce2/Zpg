@@ -70,19 +70,20 @@ bool Zpg::load(std::string File)
 			FileName += c;
 
 		// Get Data
-		unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
-		unsigned char FileCompData[fileSize];
-		PackageFile.read(reinterpret_cast<char*>(&FileCompData), pZpgFile->m_Header.m_FileSizeComp);
+		const unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
+		unsigned char *pFileCompData = new unsigned char[fileSize];
+		PackageFile.read(reinterpret_cast<char*>(pFileCompData), pZpgFile->m_Header.m_FileSizeComp);
 
 		unsigned long FileSize = pZpgFile->m_Header.m_FileSize;
 		pZpgFile->m_pData = new unsigned char[FileSize];
-		if (uncompress((Bytef *)pZpgFile->m_pData, &FileSize, (Bytef *)FileCompData, pZpgFile->m_Header.m_FileSizeComp) != Z_OK)
+		if (uncompress((Bytef *)pZpgFile->m_pData, &FileSize, (Bytef *)pFileCompData, pZpgFile->m_Header.m_FileSizeComp) != Z_OK)
 		{
 			delete[] pZpgFile->m_pData;
 			pZpgFile->m_pData = 0x0;
 			std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << FileName << "'! '" << std::endl;
 		}
 
+		delete [] pFileCompData;
 		m_mFiles.insert(std::make_pair(FileName, pZpgFile));
 	}
 
@@ -219,19 +220,21 @@ bool Zpg::addFromFile(std::string FromFullPath, std::string ToFullPath, bool Ove
 	}
 
 	File.seekg(0, std::ios::end);
-	const long long Length = static_cast<const long long>(File.tellg());
+	long long Length = static_cast<long long>(File.tellg());
 	File.seekg(0, std::ios::beg);
 
-	unsigned char FileData[Length];
-	memset(FileData, 0, Length);
-	File.read(reinterpret_cast<char*>(FileData), Length);
-
+	unsigned char *pFileData = new unsigned char[Length];
+	memset(pFileData, 0, Length);
+	File.read(reinterpret_cast<char*>(pFileData), Length);
 	File.close();
 
-	return addFromMemory(FileData, Length, ToFullPath, Overwrite);
+	const bool result = addFromMemory(pFileData, Length, ToFullPath, Overwrite);
+	delete [] pFileData;
+
+	return result;
 }
 
-bool Zpg::addFromMemory(const unsigned char *pData, unsigned long Size, std::string ToFullPath, bool Overwrite)
+bool Zpg::addFromMemory(const unsigned char *pData, long long Size, std::string ToFullPath, bool Overwrite)
 {
 	if (exists(ToFullPath))
 	{

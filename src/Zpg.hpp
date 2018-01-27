@@ -30,7 +30,7 @@ public:
     bool saveToFile(std::string File);
 
     bool addFromFile(std::string FromFullPath, std::string ToFullPath, bool Overwrite = false);
-    bool addFromMemory(const unsigned char *pData, unsigned long Size, std::string FullPath, bool Overwrite = false); // Can't be >2GiB
+    bool addFromMemory(const unsigned char *pData, long long Size, std::string FullPath, bool Overwrite = false); // Can't be >2GiB
     bool removeFile(std::string FullPath);
     bool moveFile(std::string OldFullPath, std::string NewFullPath);
 
