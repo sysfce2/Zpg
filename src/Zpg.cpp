@@ -70,7 +70,7 @@ bool Zpg::load(std::string File)
 			FileName += c;
 
 		// Get Data
-		const unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
+		unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
 		unsigned char FileCompData[fileSize];
 		PackageFile.read(reinterpret_cast<char*>(&FileCompData), pZpgFile->m_Header.m_FileSizeComp);
 
@@ -219,11 +219,11 @@ bool Zpg::addFromFile(std::string FromFullPath, std::string ToFullPath, bool Ove
 	}
 
 	File.seekg(0, std::ios::end);
-	std::streamoff Length = File.tellg();
+	const long long Length = static_cast<const long long>(File.tellg());
 	File.seekg(0, std::ios::beg);
 
 	unsigned char FileData[Length];
-	memset(FileData, 0, reinterpret_cast<long>(Length));
+	memset(FileData, 0, Length);
 	File.read(reinterpret_cast<char*>(FileData), Length);
 
 	File.close();
