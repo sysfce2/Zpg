@@ -106,10 +106,10 @@ bool Zpg::saveToFile(std::string File)
 		unsigned char *pCompData = NULL;
 
 		CompSize = compressBound(pZpgFile->m_Header.m_FileSize);
-		pCompData = (unsigned char*)malloc(sizeof(unsigned char)*CompSize);	// C-Style
+		pCompData = new unsigned char[CompSize];
 		if (compress(static_cast<Bytef*>(pCompData), static_cast<uLong*>(&CompSize), static_cast<Bytef*>(pZpgFile->m_pData), static_cast<uLong>(pZpgFile->m_Header.m_FileSize)) != Z_OK)
 		{
-			free(pCompData);
+			delete [] pCompData;
 			pCompData = 0x0;
 		}
 		if (pCompData)
@@ -129,7 +129,7 @@ bool Zpg::saveToFile(std::string File)
 			PackageFile << (*It).first << '\0'; // File Name
 			PackageFile.write(reinterpret_cast<char*>(pCompData), CompSize);	// File Data
 
-			free(pCompData);
+			delete [] pCompData;
 		}
 		else
 			std::cerr << "[LibZpg] Unexpected ZLib Error using compress with the file '" << (*It).first << "'! '" << std::endl;
