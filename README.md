@@ -3,7 +3,6 @@ Library & Tools for Game Assets Packaging
 
 ## Dependencies
 - zlib
-- zopfli
 
 ## Installation
 ```sh

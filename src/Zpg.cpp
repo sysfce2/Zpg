@@ -5,7 +5,6 @@
 #include <fstream>
 #include <cstring>
 #include <zlib.h>
-#include <zopfli/zopfli.h>
 
 
 const char Zpg::FILE_SIGN[] = {'Z','P','G','1','a','\0'};
@@ -90,15 +89,11 @@ bool Zpg::load(std::string File)
 	return true;
 }
 
-bool Zpg::saveToFile(std::string File, int NumIterations)
+bool Zpg::saveToFile(std::string File)
 {
 	std::ofstream PackageFile(File.c_str(), std::ios::binary);
 	if (!PackageFile.is_open())
 		return false;
-
-	ZopfliOptions Options;
-	ZopfliInitOptions(&Options);
-	Options.numiterations = NumIterations; // Compression level
 
 	PackageFile.write(FILE_SIGN, sizeof(FILE_SIGN)-1); // Sign
 
@@ -110,19 +105,13 @@ bool Zpg::saveToFile(std::string File, int NumIterations)
 		unsigned long CompSize = 0ul;
 		unsigned char *pCompData = NULL;
 
-		if (Options.numiterations < 1)
+		CompSize = compressBound(pZpgFile->m_Header.m_FileSize);
+		pCompData = (unsigned char*)malloc(sizeof(unsigned char)*CompSize);	// C-Style
+		if (compress(static_cast<Bytef*>(pCompData), static_cast<uLong*>(&CompSize), static_cast<Bytef*>(pZpgFile->m_pData), static_cast<uLong>(pZpgFile->m_Header.m_FileSize)) != Z_OK)
 		{
-			CompSize = compressBound(pZpgFile->m_Header.m_FileSize);
-			pCompData = (unsigned char*)malloc(sizeof(unsigned char)*CompSize);	// C-Style to equal with Zopfli
-			if (compress(static_cast<Bytef*>(pCompData), static_cast<uLong*>(&CompSize), static_cast<Bytef*>(pZpgFile->m_pData), static_cast<uLong>(pZpgFile->m_Header.m_FileSize)) != Z_OK)
-			{
-				free(pCompData);
-				pCompData = 0x0;
-			}
+			free(pCompData);
+			pCompData = 0x0;
 		}
-		else
-			ZopfliCompress(&Options, ZOPFLI_FORMAT_ZLIB, pZpgFile->m_pData, static_cast<size_t>(pZpgFile->m_Header.m_FileSize), &pCompData, reinterpret_cast<size_t*>(&CompSize));
-
 		if (pCompData)
 		{
 			pZpgFile->m_Header.m_FileSizeComp = CompSize;

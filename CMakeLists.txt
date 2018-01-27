@@ -34,7 +34,7 @@ if (TARGET_COMPILER STREQUAL "gcc" OR
     TARGET_COMPILER STREQUAL "clang")
     set(cxx_flags "${CMAKE_CXX_FLAGS} -Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
-    set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX-")
+    set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX")
 endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"
@@ -45,7 +45,6 @@ set(CMAKE_C_FLAGS   "${cxx_flags}"
 
 # REQUIRED LIBRARIES
 find_package(ZLIB)
-find_package(ZOPFLI)
 
 
 # EXTERNAL IF REQUIRED
@@ -57,7 +56,7 @@ set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${ZOPFLI_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
-set(LIB_DEPS ${ZLIB_LIBRARY} ${ZOPFLI_LIBRARY})
+set(LIB_DEPS ${ZLIB_LIBRARY})
 add_library(${LIB_NAME} STATIC  src/Zpg.cpp)
 target_link_libraries(${LIB_NAME} ${LIB_DEPS})
 

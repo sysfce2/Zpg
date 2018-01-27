@@ -27,7 +27,7 @@ public:
     ~Zpg();
 
     bool load(std::string File);
-    bool saveToFile(std::string File, int NumIterations = 15);
+    bool saveToFile(std::string File);
 
     bool addFromFile(std::string FromFullPath, std::string ToFullPath, bool Overwrite = false);
     bool addFromMemory(const unsigned char *pData, unsigned long Size, std::string FullPath, bool Overwrite = false); // Can't be >2GiB

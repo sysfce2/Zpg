@@ -53,7 +53,6 @@ struct ZpgPackerOptions
 		m_CreateMode = false;
 		m_ListMode = false;
 		m_OverwriteMode = false;
-		m_NumIterations = 15;
 	}
 
     char m_aToFile[512];
@@ -65,7 +64,6 @@ struct ZpgPackerOptions
     bool m_CreateMode;
     bool m_ListMode;
     bool m_OverwriteMode;
-    int m_NumIterations;
 };
 
 void makeDir(const char *pPath)
@@ -260,10 +258,6 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 				if (i < argc-1)
 					strncpy(pOptions->m_aExtractContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
 				break;
-			case 'I':
-				if (i < argc-1)
-					pOptions->m_NumIterations = atoi(argv[++i]);
-				break;
 			case 'M':
 				if (i < argc-2)
 				{
@@ -372,11 +366,8 @@ int main(int argc, char *argv[])
 
 	if (NeedWrite)
 	{
-		if (Options.m_NumIterations < 1)
-			std::cout << "Saving '" << Options.m_aToFile << "', using ZLib... " << std::flush;
-		else
-			std::cout << "Saving '" << Options.m_aToFile << "', using Zopfli, this is a slow process, please wait... " << std::flush;
-		const bool res = myZpg.saveToFile(Options.m_aToFile, Options.m_NumIterations);
+		std::cout << "Saving '" << Options.m_aToFile << "', using ZLib... " << std::flush;
+		const bool res = myZpg.saveToFile(Options.m_aToFile);
 		std::cout << (res?"SUCCESS":"FAILURE!") << std::endl;
 	}
 
