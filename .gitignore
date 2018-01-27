@@ -6,5 +6,7 @@ cmake_install.cmake
 console_packer
 install_manifest.txt
 *.a
-
+.cproject
+.project
+.settings/
 

@@ -1,6 +1,6 @@
 # zopfli
 if (NOT(ZOPFLI_FOUND))
-    message(STATUS "ZOPFLI Not Found... using 'external' location...")
+    message(STATUS "ZOPFLI Not Found... compiling from 'external'...")
     add_library(zopfli STATIC   zopfli/blocksplitter.c
                                 zopfli/cache.c
                                 zopfli/deflate.c
@@ -14,12 +14,12 @@ if (NOT(ZOPFLI_FOUND))
                                 zopfli/zlib_container.c
                                 zopfli/zopfli_lib.c)
     set(ZOPFLI_INCLUDE_DIR external/ CACHE INTERNAL ZOPFLI_INCLUDE_DIR)
-    set(ZOPFLI_LIBRARIES zopfli CACHE INTERNAL ZOPFLI_LIBRARIES)
+    set(ZOPFLI_LIBRARY zopfli CACHE INTERNAL ZOPFLI_LIBRARY)
 endif()
 
 # zlib
 if (NOT(ZLIB_FOUND))
-    message(STATUS "ZLIB Not Found... using 'external' location...")
+    message(STATUS "ZLIB Not Found... compiling from 'external'...")
     add_library(zlib STATIC     zlib/adler32.c
                                 zlib/compress.c
                                 zlib/crc32.c
@@ -48,5 +48,5 @@ if (NOT(ZLIB_FOUND))
                                 zlib/zutil.c
                                 zlib/zutil.h)
     set(ZLIB_INCLUDE_DIR external/zlib/ CACHE INTERNAL ZLIB_INCLUDE_DIR)
-    set(ZLIB_LIBRARIES zlib CACHE INTERNAL ZLIB_LIBRARIES)
+    set(ZLIB_LIBRARY zlib CACHE INTERNAL ZLIB_LIBRARY)
 endif()

@@ -1,8 +1,9 @@
-# This script locates the LibZpg library
+# This script locates the Zpg library
 # ------------------------------------
 
 # define the list of search paths for headers and libraries
 set(FIND_ZPG_PATHS
+	${ZPG_ROOT}
     /usr/local
     /usr)
 
@@ -38,10 +39,11 @@ macro(find_zpg_dependency output friendlyname)
 endmacro()
 
 # find libraries
+find_zpg_dependency(ZLIB_LIBRARY "libz" zlib)
 find_zpg_dependency(ZOPFLI_LIBRARY "libzopfli" zopfli)
 
 # update the list
-set(ZPG_DEPENDENCIES ${ZOPFLI_LIBRARY} "-lz")
+set(ZPG_DEPENDENCIES ${ZOPFLI_LIBRARY} ${ZLIB_LIBRARY})
 
 # handle success
 if(ZPG_FOUND)

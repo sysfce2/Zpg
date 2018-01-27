@@ -1,17 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 
 # GLOBAL PARAMS
-set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/build"
-    CACHE PATH "The path to the external libraries.")
 set(LIB_NAME "Zpg")
 
 
 # THE PROJECT
+cmake_policy(SET CMP0054 NEW)
 project("Zpg Lib")
 
 
 # MODULES
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake/)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 
 # DETECT SYSTEM PARAMS
@@ -58,12 +57,13 @@ set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${ZOPFLI_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
+set(LIB_DEPS ${ZLIB_LIBRARY} ${ZOPFLI_LIBRARY})
 add_library(${LIB_NAME} STATIC  src/Zpg.cpp)
-target_link_libraries(${LIB_NAME} ${ZLIB_LIBRARIES} ${ZOPFLI_LIBRARIES})
+target_link_libraries(${LIB_NAME} ${LIB_DEPS})
 
 # TOOLS
 add_executable(zpg_packer EXCLUDE_FROM_ALL tools/zpg_packer.cpp)
-target_link_libraries(zpg_packer ${LIB_NAME})
+target_link_libraries(zpg_packer ${LIB_NAME} ${LIB_DEPS})
 
 
 # INSTALL
