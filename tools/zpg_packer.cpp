@@ -35,7 +35,7 @@
 #if defined(__linux__)
 	#include <dirent.h>
 	#include <sys/stat.h>
-#elif defined(__WIN32__)
+#elif defined(__WIN32__) || define(_WIN32) || defined(_WIN64)
     #include <windows.h>
     #include <direct.h>
 #endif
@@ -74,7 +74,7 @@ void makeDir(const char *pPath)
 	{
 	#if defined(__linux__)
 		mkdir(path.substr(0, delPos+1).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    #elif defined(__WIN32__)
+    #elif defined(__WIN32__) || define(_WIN32) || defined(_WIN64)
         CreateDirectory(path.substr(0, delPos).c_str(), NULL);
 	#else
 		#error Not Implemented!
@@ -183,7 +183,7 @@ bool addDirectory(Zpg &zpg, const char *pFromFullPath, const char *pToFullPath, 
 	}
 
 	closedir(pDir);
-#elif defined(__WIN32__)
+#elif defined(__WIN32__) || define(_WIN32) || defined(_WIN64)
     char wildcard[FILENAME_MAX];
     snprintf(wildcard, FILENAME_MAX, "%s*", pFromFullPath);
 
