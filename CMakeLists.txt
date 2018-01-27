@@ -34,7 +34,7 @@ if (TARGET_COMPILER STREQUAL "gcc" OR
     TARGET_COMPILER STREQUAL "clang")
     set(cxx_flags "${CMAKE_CXX_FLAGS} -Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
-    set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc")
+    set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX-")
 endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"
