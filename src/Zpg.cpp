@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstring>
 #include <zlib.h>
+#include <ios>
 
 
 const char Zpg::FILE_SIGN[] = {'Z','P','G','1','a','\0'};
@@ -29,7 +30,7 @@ bool Zpg::load(std::string File)
 	}
 
 	// File Size
-	unsigned long PackageSize = 0ul;
+	std::streamoff PackageSize = 0ul;
 	PackageFile.seekg(0, std::ios::end);
 	PackageSize = PackageFile.tellg();
 	PackageFile.seekg(0, std::ios::beg);
@@ -46,7 +47,7 @@ bool Zpg::load(std::string File)
 	}
 
 	// Get Files
-	while (static_cast<unsigned long>(PackageFile.tellg()) < PackageSize)
+	while (PackageFile.tellg() < PackageSize)
 	{
 		ZpgFile *pZpgFile = new ZpgFile();
 		memset(pZpgFile, 0, sizeof(ZpgFile));
@@ -69,7 +70,8 @@ bool Zpg::load(std::string File)
 			FileName += c;
 
 		// Get Data
-		unsigned char FileCompData[pZpgFile->m_Header.m_FileSizeComp];
+		const unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
+		unsigned char FileCompData[fileSize];
 		PackageFile.read(reinterpret_cast<char*>(&FileCompData), pZpgFile->m_Header.m_FileSizeComp);
 
 		unsigned long FileSize = pZpgFile->m_Header.m_FileSize;
@@ -217,11 +219,11 @@ bool Zpg::addFromFile(std::string FromFullPath, std::string ToFullPath, bool Ove
 	}
 
 	File.seekg(0, std::ios::end);
-	const unsigned int Length = File.tellg();
+	std::streamoff Length = File.tellg();
 	File.seekg(0, std::ios::beg);
 
 	unsigned char FileData[Length];
-	memset(FileData, 0, Length);
+	memset(FileData, 0, reinterpret_cast<long>(Length));
 	File.read(reinterpret_cast<char*>(FileData), Length);
 
 	File.close();
