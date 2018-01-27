@@ -234,7 +234,7 @@ bool Zpg::addFromFile(std::string FromFullPath, std::string ToFullPath, bool Ove
 	return result;
 }
 
-bool Zpg::addFromMemory(const unsigned char *pData, long long Size, std::string ToFullPath, bool Overwrite)
+bool Zpg::addFromMemory(const unsigned char *pData, const unsigned long Size, std::string ToFullPath, bool Overwrite)
 {
 	if (exists(ToFullPath))
 	{
