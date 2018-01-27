@@ -8,7 +8,7 @@ set(LIB_NAME "Zpg")
 if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif()
-project("Zpg Lib")
+project("libZpg")
 
 
 # MODULES
