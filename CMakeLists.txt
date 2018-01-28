@@ -41,7 +41,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"
     CACHE STRING "Flags used by the compiler during all build types." FORCE)
-set(CMAKE_C_FLAGS   "${cxx_flags}"
+set(CMAKE_C_FLAGS   "${c_flags}"
     CACHE STRING "Flags used by the compiler during all build types." FORCE)
 
 
