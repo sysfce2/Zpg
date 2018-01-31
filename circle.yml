@@ -7,12 +7,12 @@ dependencies:
 test:
   override:
     - |
-        mkdir build-release/ && cd build-release/
+        mkdir build64/ && cd build64/
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
         make install
         make zpg_packer
     - |
-        mkdir build-debug/ && cd build-debug/
-        cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
+        mkdir build32/ && cd build32/
+        cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 ..
         make install
         make zpg_packer

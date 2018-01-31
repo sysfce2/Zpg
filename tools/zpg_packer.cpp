@@ -40,6 +40,7 @@
     #include <direct.h>
 #endif
 
+
 struct ZpgPackerOptions
 {
 	ZpgPackerOptions()
@@ -65,6 +66,15 @@ struct ZpgPackerOptions
     bool m_ListMode;
     bool m_OverwriteMode;
 };
+
+void str_copy(char *to, const char *from, size_t size)
+{
+#if defined(__WIN32__) || defined(_WIN32) || defined(_WIN64)
+	strncpy_s(from, to, size);
+#else
+	strncpy(to, from, size);
+#endif
+}
 
 void makeDir(const char *pPath)
 {
@@ -236,7 +246,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 	if (argc <= 1)
 		return false;
 
-	strncpy_s_s(pOptions->m_aToFile, argv[1], sizeof(pOptions->m_aToFile));
+	str_copy(pOptions->m_aToFile, argv[1], sizeof(pOptions->m_aToFile));
     for (int i=2; i<argc; ++i)
     {
     	if (strlen(argv[i]) < 2 || argv[i][0] != '-')
@@ -246,7 +256,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
     	{
 			case 'A':
 				if (i < argc-1)
-					strncpy_s(pOptions->m_aAddContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
+					str_copy(pOptions->m_aAddContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
 				break;
 			case 'C':
 				pOptions->m_CreateMode = true;
@@ -256,13 +266,13 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 				break;
 			case 'E':
 				if (i < argc-1)
-					strncpy_s(pOptions->m_aExtractContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
+					str_copy(pOptions->m_aExtractContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
 				break;
 			case 'M':
 				if (i < argc-2)
 				{
-					strncpy_s(pOptions->m_aOldContentPath, argv[++i], sizeof(pOptions->m_aOldContentPath));
-					strncpy_s(pOptions->m_aNewContentPath, argv[++i], sizeof(pOptions->m_aNewContentPath));
+					str_copy(pOptions->m_aOldContentPath, argv[++i], sizeof(pOptions->m_aOldContentPath));
+					str_copy(pOptions->m_aNewContentPath, argv[++i], sizeof(pOptions->m_aNewContentPath));
 				}
 				break;
 			case 'O':
@@ -270,7 +280,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 				break;
 			case 'R':
 				if (i < argc-1)
-					strncpy_s(pOptions->m_aRemoveContentPath, argv[++i], sizeof(pOptions->m_aRemoveContentPath));
+					str_copy(pOptions->m_aRemoveContentPath, argv[++i], sizeof(pOptions->m_aRemoveContentPath));
 				break;
     	}
     }
