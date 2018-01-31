@@ -50,10 +50,6 @@ set(CMAKE_C_FLAGS   "${c_flags}"
 find_package(ZLIB)
 
 
-# EXTERNAL IF REQUIRED
-add_subdirectory(external/ libs/)
-
-
 # INCLUDES
 set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
