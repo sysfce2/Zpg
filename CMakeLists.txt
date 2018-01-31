@@ -37,6 +37,7 @@ if (TARGET_COMPILER STREQUAL "gcc" OR
     set(cxx_flags "${CMAKE_CXX_FLAGS} -Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
     set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"
@@ -54,7 +55,7 @@ add_subdirectory(external/ libs/)
 
 
 # INCLUDES
-set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} ${ZOPFLI_INCLUDE_DIR} src/)
+set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} src/)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
