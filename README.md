@@ -27,7 +27,8 @@ cmake --build build32 --config Release --target install
 ## 'zpg_packer' Tool Build
 #### Linux
 ```sh
-~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release . && make zpg_packer
+~$ mkdir build && cd build
+~$ cmake -DCMAKE_BUILD_TYPE:STRING=Release .. && make zpg_packer
 ```
 #### Windows
 ```batch
@@ -82,10 +83,10 @@ int main()
 ```
 
 ## 'zpg_packer' Tool Basic Usage Example
-Syntaxis: zpg_packer <file> <options>
+Syntaxis: zpg_packer $<file>$ $<options>$
 #### Create .zpg file
 ```sh
-~$ zpg_pack assets.zpg -C -A data/
+~$ zpg_packer assets.zpg -C -A data/
 
 ```
 More info: https://github.com/Tardo/Zpg/blob/master/tools/zpg_packer.cpp
