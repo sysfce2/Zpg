@@ -1,11 +1,16 @@
 # libZpg
 Library & Tools for Game Assets Packaging
-Load assets in memory on demand.
+
+## Features
+- Load assets in memory on demand.
+- Zlib compressed
+- Very easy usage
+- Tool for manage .zpg files
 
 ## Dependencies
 - zlib
 
-## Library Installation
+## Library Build & Installation
 #### Linux
 ```sh
 ~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
@@ -15,7 +20,7 @@ Load assets in memory on demand.
 cmake --build build --config Release --target install
 ```
 
-## 'zpg_packer' Tool Compilation
+## 'zpg_packer' Tool Build
 #### Linux
 ```sh
 ~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release . && make zpg_packer
