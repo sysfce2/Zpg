@@ -1,20 +1,13 @@
 dependencies:
   pre:
     - |
-        sudo apt-get update && sudo apt-get install -y cmake zlib1g-dev lib32gcc1 libc6-i386 lib32z1 lib32stdc++6 lib32z1-dev lib32bz2-dev g++-multilib
+        sudo apt-get update && sudo apt-get install -y cmake zlib1g-dev
 
 ## Customize test commands
 test:
   override:
     - |
-        mkdir build64/ && cd build64/
+        mkdir build/ && cd build/
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
-        make install
-        make zpg_packer
-    - |
-        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib32:/usr/lib32
-        export LD_LIBRARY_PATH
-        mkdir build32/ && cd build32/
-        cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32 ..
-        make install
+        make
         make zpg_packer
