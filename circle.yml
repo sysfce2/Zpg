@@ -9,10 +9,10 @@ test:
     - |
         mkdir build-release/ && cd build-release/
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
-        make
+        make install
         make zpg_packer
     - |
         mkdir build-debug/ && cd build-debug/
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
-        make 
+        make install
         make zpg_packer
