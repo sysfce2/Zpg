@@ -25,7 +25,7 @@ void Zpg::close()
 
 bool Zpg::open(std::string File)
 {
-	m_PackageFile = std::ifstream(File.c_str(), std::ios::binary);
+	m_PackageFile.open(File.c_str(), std::ios::binary);
 	if (!m_PackageFile.is_open())
 	{
 		std::cerr << "[LibZpg] Can't open '" << File << "'!" << std::endl;
