@@ -1,15 +1,31 @@
 # libZpg
 Library & Tools for Game Assets Packaging
+Load assets in memory on demand.
 
 ## Dependencies
 - zlib
 
-## Installation
+## Library Installation
+#### Linux
 ```sh
 ~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
 ```
+#### Windows
+```batch
+cmake --build build --config Release --target install
+```
 
-## Basic Usage Example
+## 'zpg_packer' Tool Compilation
+#### Linux
+```sh
+~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release . && make zpg_packer
+```
+#### Windows
+```batch
+cmake --build build --config Release --target zpg_packer
+```
+
+## Library Basic Usage Example
 #### Write
 ```cpp
 #include <Zpg/Zpg.hpp>
@@ -45,9 +61,19 @@ int main()
   const unsigned char *pFileTextData = myZpg.getFileData("data/mytext.txt", &textSize);
   std::string myString = Zpg::toString(pFileTextData, textSize);
   // Do something with 'myString'
+  myZpg.unloadData("data/mytext.txt")
   
   // Don't need free any data... LibZpg handles it by itself.
   // But you can 'force' it: myZpg.unloadAll()
   return 0;
 }
 ```
+
+## 'zpg_packer' Tool Basic Usage Example
+Syntaxis: zpg_packer <file> <options>
+#### Create .zpg file
+```sh
+~$ zpg_pack assets.zpg -C -A data/
+
+```
+More info: https://github.com/Tardo/Zpg/blob/master/tools/zpg_packer.cpp
