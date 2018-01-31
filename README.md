@@ -83,7 +83,7 @@ int main()
 ```
 
 ## 'zpg_packer' Tool Basic Usage Example
-Syntaxis: zpg_packer $<file>$ $<options>$
+Syntaxis: ``zpg_packer <file> <options>``
 #### Create .zpg file
 ```sh
 ~$ zpg_packer assets.zpg -C -A data/
