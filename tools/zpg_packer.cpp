@@ -236,7 +236,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 	if (argc <= 1)
 		return false;
 
-	strncpy(pOptions->m_aToFile, argv[1], sizeof(pOptions->m_aToFile));
+	strncpy_s_s(pOptions->m_aToFile, argv[1], sizeof(pOptions->m_aToFile));
     for (int i=2; i<argc; ++i)
     {
     	if (strlen(argv[i]) < 2 || argv[i][0] != '-')
@@ -246,7 +246,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
     	{
 			case 'A':
 				if (i < argc-1)
-					strncpy(pOptions->m_aAddContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
+					strncpy_s(pOptions->m_aAddContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
 				break;
 			case 'C':
 				pOptions->m_CreateMode = true;
@@ -256,13 +256,13 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 				break;
 			case 'E':
 				if (i < argc-1)
-					strncpy(pOptions->m_aExtractContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
+					strncpy_s(pOptions->m_aExtractContentPath, argv[++i], sizeof(pOptions->m_aAddContentPath));
 				break;
 			case 'M':
 				if (i < argc-2)
 				{
-					strncpy(pOptions->m_aOldContentPath, argv[++i], sizeof(pOptions->m_aOldContentPath));
-					strncpy(pOptions->m_aNewContentPath, argv[++i], sizeof(pOptions->m_aNewContentPath));
+					strncpy_s(pOptions->m_aOldContentPath, argv[++i], sizeof(pOptions->m_aOldContentPath));
+					strncpy_s(pOptions->m_aNewContentPath, argv[++i], sizeof(pOptions->m_aNewContentPath));
 				}
 				break;
 			case 'O':
@@ -270,7 +270,7 @@ bool parseInputOptions(ZpgPackerOptions *pOptions, int argc, char *argv[])
 				break;
 			case 'R':
 				if (i < argc-1)
-					strncpy(pOptions->m_aRemoveContentPath, argv[++i], sizeof(pOptions->m_aRemoveContentPath));
+					strncpy_s(pOptions->m_aRemoveContentPath, argv[++i], sizeof(pOptions->m_aRemoveContentPath));
 				break;
     	}
     }
