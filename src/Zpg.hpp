@@ -4,6 +4,7 @@
 
 #include <map>
 #include <string>
+#include <fstream>
 
 
 struct ZpgFileHeader
@@ -15,6 +16,8 @@ struct ZpgFileHeader
 struct ZpgFile
 {
 	ZpgFileHeader m_Header;
+	std::string m_FileName;
+	unsigned long m_Offset;
 	unsigned char *m_pData;
 };
 
@@ -26,7 +29,8 @@ public:
     Zpg();
     ~Zpg();
 
-    bool load(std::string File);
+    bool open(std::string File);
+    void close();
     bool saveToFile(std::string File);
 
     bool addFromFile(std::string FromFullPath, std::string ToFullPath, bool Overwrite = false);
@@ -34,7 +38,8 @@ public:
     bool removeFile(std::string FullPath);
     bool moveFile(std::string OldFullPath, std::string NewFullPath);
 
-    const unsigned char* getFileData(std::string FullPath, unsigned long *pFileSize) const;
+    void unloadData(std::string FullPath);
+    const unsigned char* getFileData(std::string FullPath, unsigned long *pFileSize);
     const std::map<std::string, ZpgFile*>& getFiles() const { return m_mFiles; }
 
     static inline std::string toString(const unsigned char *pData, unsigned long Size)
@@ -46,10 +51,12 @@ public:
 
 protected:
     std::map<std::string, ZpgFile*> m_mFiles;
+    std::ifstream m_PackageFile;
 
 private:
     bool exists(std::string FullPath) const;
     void swap(unsigned char *pData, unsigned long Size) const;
+    bool decompressFileData(ZpgFile *pZpgFile);
 };
 
 #endif // LIBZPG_HPP

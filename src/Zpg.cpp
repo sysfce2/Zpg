@@ -2,7 +2,6 @@
 #include "Zpg.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <cstring>
 #include <zlib.h>
 #include <ios>
@@ -15,15 +14,19 @@ Zpg::Zpg()
 }
 Zpg::~Zpg()
 {
+	close();
+}
+
+void Zpg::close()
+{
+	m_PackageFile.close();
 	unloadAll();
 }
 
-bool Zpg::load(std::string File)
+bool Zpg::open(std::string File)
 {
-	unloadAll();
-
-	std::ifstream PackageFile(File.c_str(), std::ios::binary);
-	if (!PackageFile.is_open())
+	m_PackageFile = std::ifstream(File.c_str(), std::ios::binary);
+	if (!m_PackageFile.is_open())
 	{
 		std::cerr << "[LibZpg] Can't open '" << File << "'!" << std::endl;
 		return false;
@@ -31,29 +34,29 @@ bool Zpg::load(std::string File)
 
 	// File Size
 	std::streamoff PackageSize = 0ul;
-	PackageFile.seekg(0, std::ios::end);
-	PackageSize = PackageFile.tellg();
-	PackageFile.seekg(0, std::ios::beg);
+	m_PackageFile.seekg(0, std::ios::end);
+	PackageSize = m_PackageFile.tellg();
+	m_PackageFile.seekg(0, std::ios::beg);
 
 	// Is ZPG file?
 	char aSign[sizeof(FILE_SIGN)];
 	memset(aSign, 0, sizeof(aSign));
-	PackageFile.read(aSign, sizeof(aSign)-1);
+	m_PackageFile.read(aSign, sizeof(aSign)-1);
 	if (strncmp(aSign, FILE_SIGN, sizeof(aSign)) != 0)
 	{
 		std::cerr << "[LibZpg] The file '" << File << "' doesn't appear to be ZPG type..." << std::endl;
-		PackageFile.close();
+		m_PackageFile.close();
 		return false;
 	}
 
 	// Get Files
-	while (PackageFile.tellg() < PackageSize)
+	while (m_PackageFile.tellg() < PackageSize)
 	{
 		ZpgFile *pZpgFile = new ZpgFile();
 		memset(pZpgFile, 0, sizeof(ZpgFile));
 		// Get Header
 	#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-		PackageFile.read(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header));
+		m_PackageFile.read(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header));
 	#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 		unsigned char Temp[sizeof(ZpgFileHeader)];
 		PackageFile.read(reinterpret_cast<char*>(Temp), sizeof(Temp));
@@ -64,31 +67,37 @@ bool Zpg::load(std::string File)
 	#endif
 
 		// Get Name
-		std::string FileName;
 		char c = 0;
-		while (PackageFile.read(&c, 1) && c != 0)
-			FileName += c;
+		while (m_PackageFile.read(&c, 1) && c != 0)
+			pZpgFile->m_FileName += c;
 
-		// Get Data
-		const unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
-		unsigned char *pFileCompData = new unsigned char[fileSize];
-		PackageFile.read(reinterpret_cast<char*>(pFileCompData), pZpgFile->m_Header.m_FileSizeComp);
+		pZpgFile->m_Offset = static_cast<unsigned long>(m_PackageFile.tellg());
+		m_PackageFile.seekg(pZpgFile->m_Header.m_FileSizeComp, std::ios_base::cur);
 
-		unsigned long FileSize = pZpgFile->m_Header.m_FileSize;
-		pZpgFile->m_pData = new unsigned char[FileSize];
-		if (uncompress((Bytef *)pZpgFile->m_pData, &FileSize, (Bytef *)pFileCompData, pZpgFile->m_Header.m_FileSizeComp) != Z_OK)
-		{
-			delete[] pZpgFile->m_pData;
-			pZpgFile->m_pData = 0x0;
-			std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << FileName << "'! '" << std::endl;
-		}
-
-		delete [] pFileCompData;
-		m_mFiles.insert(std::make_pair(FileName, pZpgFile));
+		m_mFiles.insert(std::make_pair(pZpgFile->m_FileName, pZpgFile));
 	}
 
-	PackageFile.close();
+	return true;
+}
 
+bool Zpg::decompressFileData(ZpgFile *pZpgFile)
+{
+	const unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
+	unsigned char *pFileCompData = new unsigned char[fileSize];
+	m_PackageFile.seekg(pZpgFile->m_Offset, std::ios_base::beg);
+	m_PackageFile.read(reinterpret_cast<char*>(pFileCompData), pZpgFile->m_Header.m_FileSizeComp);
+
+	unsigned long FileSize = pZpgFile->m_Header.m_FileSize;
+	pZpgFile->m_pData = new unsigned char[FileSize];
+	if (uncompress((Bytef *)pZpgFile->m_pData, &FileSize, (Bytef *)pFileCompData, pZpgFile->m_Header.m_FileSizeComp) != Z_OK)
+	{
+		delete[] pZpgFile->m_pData;
+		pZpgFile->m_pData = 0x0;
+		std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << pZpgFile->m_FileName << "'! '" << std::endl;
+		return false;
+	}
+
+	delete [] pFileCompData;
 	return true;
 }
 
@@ -144,13 +153,26 @@ bool Zpg::saveToFile(std::string File)
 	return true;
 }
 
+void Zpg::unloadData(std::string FullPath)
+{
+	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
+	if (It != m_mFiles.end() && (*It).second->m_pData)
+	{
+		delete[] (*It).second->m_pData;
+		(*It).second->m_pData = 0x0;
+	}
+}
+
 void Zpg::unloadAll()
 {
 	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
 		if ((*It).second->m_pData)
+		{
 			delete[] (*It).second->m_pData;
+			(*It).second->m_pData = 0x0;
+		}
 		delete (*It).second;
 		++It;
 	}
@@ -270,12 +292,14 @@ bool Zpg::addFromMemory(const unsigned char *pData, const unsigned long Size, st
 	return true;
 }
 
-const unsigned char* Zpg::getFileData(std::string FullPath, unsigned long *pFileSize) const
+const unsigned char* Zpg::getFileData(std::string FullPath, unsigned long *pFileSize)
 {
 	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
 	if (It == m_mFiles.end())
 		return 0x0;
 
 	*pFileSize = (*It).second->m_Header.m_FileSize;
+	if (!(*It).second->m_pData)
+		decompressFileData((*It).second);
 	return (*It).second->m_pData;
 }

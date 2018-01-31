@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
     bool NeedWrite = false;
 	if (!Options.m_CreateMode)
 	{
-		if (!myZpg.load(Options.m_aToFile))
+		if (!myZpg.open(Options.m_aToFile))
 			return -1;
 	}
 
