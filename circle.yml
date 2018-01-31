@@ -1,7 +1,7 @@
 dependencies:
   pre:
     - |
-        sudo apt-get update && sudo apt-get install -y cmake zlib1g-dev lib32gcc1 libc6-i386 lib32stdc++6 lib32z1-dev lib32bz2-dev g++-multilib
+        sudo apt-get update && sudo apt-get install -y cmake zlib1g-dev lib32gcc1 libc6-i386 lib32z1 lib32stdc++6 lib32z1-dev lib32bz2-dev g++-multilib
 
 ## Customize test commands
 test:
