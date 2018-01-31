@@ -13,7 +13,7 @@ install:
     cd .. &&
     cmake --build build32 --config Release --target install &&
     cd ..)
-  - cd c:\projects\MVRunner
+  - cd c:\projects\zpg
 
 before_build:
 - cmd: |

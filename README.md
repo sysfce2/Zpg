@@ -1,4 +1,4 @@
-# libZpg
+# libZpg [![Build status](https://ci.appveyor.com/api/projects/status/tb9yl3u79j0t3v78?svg=true)](https://ci.appveyor.com/project/Tardo/zpg) [![CircleCI](https://circleci.com/gh/Tardo/Zpg.svg?style=svg)](https://circleci.com/gh/Tardo/Zpg)
 Library & Tools for Game Assets Packaging
 
 ## Features
