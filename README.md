@@ -21,7 +21,7 @@ Library & Tools for Game Assets Packaging
 md build32 & cd build32
 cmake -Werror=dev -G"Visual Studio 14 2015" ..
 cd ..
-cmake --build build --config Release --target install
+cmake --build build32 --config Release --target install
 ```
 
 ## 'zpg_packer' Tool Build
