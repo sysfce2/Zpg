@@ -64,7 +64,7 @@ int main()
 int main()
 {
   Zpg myZpg;
-  if (!myZpg.load("myassets.zpg"))
+  if (!myZpg.open("myassets.zpg"))
     return -1;
     
   unsigned long imageSize = 0;
@@ -74,10 +74,11 @@ int main()
   const unsigned char *pFileTextData = myZpg.getFileData("data/mytext.txt", &textSize);
   std::string myString = Zpg::toString(pFileTextData, textSize);
   // Do something with 'myString'
-  myZpg.unloadData("data/mytext.txt")
+  myZpg.unloadData("data/mytext.txt")  // Can omit this
   
   // Don't need free any data... LibZpg handles it by itself.
   // But you can 'force' it: myZpg.unloadAll()
+  // or closing the file: myZpg.close()
   return 0;
 }
 ```
