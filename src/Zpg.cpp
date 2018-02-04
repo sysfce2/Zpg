@@ -19,7 +19,8 @@ Zpg::~Zpg()
 
 void Zpg::close()
 {
-	m_PackageFile.close();
+	if (m_PackageFile.is_open())
+		m_PackageFile.close();
 	unloadAll();
 }
 
@@ -123,8 +124,9 @@ bool Zpg::saveToFile(std::string File)
 		{
 			delete [] pCompData;
 			pCompData = 0x0;
+			std::cerr << "[LibZpg] Unexpected ZLib Error using compress with the file '" << (*It).first << "'! '" << std::endl;
 		}
-		if (pCompData)
+		else
 		{
 			pZpgFile->m_Header.m_FileSizeComp = CompSize;
 
@@ -143,8 +145,6 @@ bool Zpg::saveToFile(std::string File)
 
 			delete [] pCompData;
 		}
-		else
-			std::cerr << "[LibZpg] Unexpected ZLib Error using compress with the file '" << (*It).first << "'! '" << std::endl;
 
 		++It;
 	}

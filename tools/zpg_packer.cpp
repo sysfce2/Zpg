@@ -38,6 +38,7 @@
     #include <windows.h>
     #include <direct.h>
 #endif
+#include <string>
 
 struct ZpgPackerOptions
 {
@@ -158,7 +159,7 @@ bool addDirectory(Zpg &zpg, const char *pFromFullPath, const char *pToFullPath, 
 
 	while ((pDirent = readdir(pDir)))
 	{
-		if (strncmp(pDirent->d_name, ".", sizeof(pDirent->d_name)) == 0 || strncmp(pDirent->d_name, "..", sizeof(pDirent->d_name)) == 0)
+		if (pDirent->d_name[0] == '.' || pDirent->d_name[0] == '$')
 			continue;
 
 		if (pDirent->d_type == DT_DIR)
@@ -198,7 +199,7 @@ bool addDirectory(Zpg &zpg, const char *pFromFullPath, const char *pToFullPath, 
     else
     {
         do {
-            if (strncmp(data.cFileName, ".", sizeof(data.cFileName)) == 0 || strncmp(data.cFileName, "..", sizeof(data.cFileName)) == 0)
+        	if (data.cFileName[0] == '.' || data.cFileName[0] == '$')
                 continue;
 
             if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
