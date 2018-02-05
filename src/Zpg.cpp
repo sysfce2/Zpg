@@ -173,6 +173,7 @@ void Zpg::unloadAll()
 			delete[] (*It).second.m_pData;
 			(*It).second.m_pData = 0x0;
 		}
+		++It;
 	}
 	m_mFiles.clear();
 }
