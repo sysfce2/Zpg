@@ -270,16 +270,15 @@ bool Zpg::addFromMemory(const unsigned char *pData, const unsigned long Size, st
 		}
 	}
 
-	ZpgFile ZpgFile;
-	memset(&ZpgFile.m_Header, 0, sizeof(ZpgFile));
+	m_mFiles.insert(std::pair<std::string, ZpgFile>(ToFullPath, ZpgFile()));
+	std::map<std::string, ZpgFile>::reverse_iterator it = m_mFiles.rbegin();
+	memset(&(*it).second.m_Header, 0, sizeof(ZpgFile));
 
-	ZpgFile.m_Header.m_FileSize = Size;
-	ZpgFile.m_pData = new unsigned char[Size];
-	if (!ZpgFile.m_pData)
+	(*it).second.m_Header.m_FileSize = Size;
+	(*it).second.m_pData = new unsigned char[Size];
+	if (!(*it).second.m_pData)
 		return false;
-	memcpy(ZpgFile.m_pData, pData, Size);
-
-	m_mFiles.insert(std::make_pair(ToFullPath.c_str(), ZpgFile));
+	memcpy((*it).second.m_pData, pData, Size);
 
 	return true;
 }
