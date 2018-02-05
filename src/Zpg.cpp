@@ -165,21 +165,16 @@ void Zpg::unloadData(std::string FullPath)
 
 void Zpg::unloadAll()
 {
-	std::cout << "PASA 0" << std::endl;
 	std::map<std::string, ZpgFile>::iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
-		std::cout << "PASA 1" << std::endl;
 		if ((*It).second.m_pData)
 		{
-			std::cout << "PASA 2" << std::endl;
 			delete[] (*It).second.m_pData;
 			(*It).second.m_pData = 0x0;
 		}
-		std::cout << "PASA 3" << std::endl;
-		m_mFiles.erase(It++);
 	}
-	std::cout << "PASA 4" << std::endl;
+	m_mFiles.clear();
 }
 
 bool Zpg::exists(std::string FullPath) const
