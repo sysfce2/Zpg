@@ -23,7 +23,7 @@ install:
   - cd c:\projects\zpg
 
 before_build:
-  - cmd: |
+- cmd: |
     md build32\Release & cd build32
     cmake -Werror=dev -G "Visual Studio 14 2015" ..
     cd ..
@@ -33,7 +33,7 @@ build_script:
   - cmd: cmake --build build32 --config Release --target zpg_packer
 
 test_script:
-  - cmd: |
+- cmd: |
     md test_zpg & cd test_zpg
     move ..\build32\zpg_packer.exe \
     echo "This is a test" >> test.txt
