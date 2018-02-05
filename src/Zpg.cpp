@@ -19,9 +19,9 @@ Zpg::~Zpg()
 
 void Zpg::close()
 {
+	unloadAll();
 	if (m_PackageFile.is_open())
 		m_PackageFile.close();
-	unloadAll();
 }
 
 bool Zpg::open(std::string File)

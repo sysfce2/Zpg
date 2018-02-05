@@ -35,7 +35,7 @@ build_script:
 test_script:
 - cmd: |
     md test_zpg & cd test_zpg
-    move ..\build32\Release\zpg_packer.exe \
+    move ..\build32\Release\zpg_packer.exe zpg_packer.exe
     echo "This is a test" >> test.txt
     zpg_packer.exe test.zpg -C -A test.txt
     rm test.txt
