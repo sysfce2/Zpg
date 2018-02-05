@@ -177,11 +177,9 @@ void Zpg::unloadAll()
 			(*It).second.m_pData = 0x0;
 		}
 		std::cout << "PASA 3" << std::endl;
-		++It;
+		It = m_mFiles.erase(It);
 	}
 	std::cout << "PASA 4" << std::endl;
-	m_mFiles.clear();
-	std::cout << "PASA 5" << std::endl;
 }
 
 bool Zpg::exists(std::string FullPath) const
