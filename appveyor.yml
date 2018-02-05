@@ -34,7 +34,7 @@ build_script:
 
 test_script:
 - cmd: |
-    cd move build32\Release\
+    cd build32\Release
     zpg_packer.exe test.zpg -C -A ..\..\tools\test.jpg
     zpg_packer.exe test.zpg -A ..\..\tools\test.txt
     zpg_packer.exe test.zpg -L
