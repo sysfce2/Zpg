@@ -113,8 +113,8 @@ bool extractFile(Zpg &zpg, const char *pPathFile)
 
 void extractDirectory(Zpg &zpg, const char *pPath)
 {
-	const std::map<std::string, ZpgFile*> &mFiles = zpg.getFiles();
-	std::map<std::string, ZpgFile*>::const_iterator cit = mFiles.begin();
+	const std::map<std::string, ZpgFile> &mFiles = zpg.getFiles();
+	std::map<std::string, ZpgFile>::const_iterator cit = mFiles.begin();
 	while (cit != mFiles.end())
 	{
 		std::size_t fpos = (*cit).first.find(pPath, 0);
@@ -130,8 +130,8 @@ void extractDirectory(Zpg &zpg, const char *pPath)
 
 void removeDirectory(Zpg &zpg, const char *pPath)
 {
-	const std::map<std::string, ZpgFile*> &mFiles = zpg.getFiles();
-	std::map<std::string, ZpgFile*>::const_iterator cit = mFiles.begin();
+	const std::map<std::string, ZpgFile> &mFiles = zpg.getFiles();
+	std::map<std::string, ZpgFile>::const_iterator cit = mFiles.begin();
 	while (cit != mFiles.end())
 	{
 		std::size_t fpos = (*cit).first.find(pPath, 0);
@@ -373,14 +373,13 @@ int main(int argc, char *argv[])
 
 	if (Options.m_ListMode)
 	{
-		const std::map<std::string, ZpgFile*> &mFiles = myZpg.getFiles();
+		const std::map<std::string, ZpgFile> &mFiles = myZpg.getFiles();
 		std::cout << "Num. Files: " << mFiles.size() << std::endl;
-		std::map<std::string, ZpgFile*>::const_iterator It = mFiles.begin();
+		std::map<std::string, ZpgFile>::const_iterator It = mFiles.begin();
 		while (It != mFiles.end())
 		{
-			ZpgFile *pZpgFile = (*It).second;
-			const float pc = (pZpgFile->m_Header.m_FileSize - pZpgFile->m_Header.m_FileSizeComp) * 100.0f / pZpgFile->m_Header.m_FileSize;
-			std::cout << std::dec << (*It).first << " [CSize: " << pZpgFile->m_Header.m_FileSizeComp << "][Size: " << pZpgFile->m_Header.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << std::endl;
+			const float pc = ((*It).second.m_Header.m_FileSize - (*It).second.m_Header.m_FileSizeComp) * 100.0f / (*It).second.m_Header.m_FileSize;
+			std::cout << std::dec << (*It).first << " [CSize: " << (*It).second.m_Header.m_FileSizeComp << "][Size: " << (*It).second.m_Header.m_FileSize << "]" << "[" << std::fixed << std::setprecision(2) << pc << "%]" << std::endl;
 			++It;
 		}
 	}
