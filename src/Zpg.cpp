@@ -69,13 +69,14 @@ bool Zpg::open(std::string File)
 
 		// Get Name
 		char c = 0;
-		while (m_PackageFile.read(&c, 1) && c != 0)
-			ZpgFile.m_FileName += c;
+		unsigned int namelen = 0;
+		while (m_PackageFile.read(&c, 1) && c != 0 && namelen < sizeof(ZpgFile.m_aFileName))
+			ZpgFile.m_aFileName[namelen++] = c;
 
 		ZpgFile.m_Offset = static_cast<unsigned long>(m_PackageFile.tellg());
 		m_PackageFile.seekg(ZpgFile.m_Header.m_FileSizeComp, std::ios_base::cur);
 
-		m_mFiles.insert(std::make_pair(ZpgFile.m_FileName, ZpgFile));
+		m_mFiles.insert(std::make_pair(ZpgFile.m_aFileName, ZpgFile));
 	}
 
 	return true;
@@ -94,7 +95,7 @@ bool Zpg::decompressFileData(ZpgFile &ZpgFile)
 	{
 		delete[] ZpgFile.m_pData;
 		ZpgFile.m_pData = 0x0;
-		std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << ZpgFile.m_FileName << "'! '" << std::endl;
+		std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << ZpgFile.m_aFileName << "'! '" << std::endl;
 		return false;
 	}
 

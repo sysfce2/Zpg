@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 
+#define MAX_FILENAME_LENGTH	1024
 
 struct ZpgFileHeader
 {
@@ -16,7 +17,7 @@ struct ZpgFileHeader
 struct ZpgFile
 {
 	ZpgFileHeader m_Header;
-	std::string m_FileName;
+	char m_aFileName[MAX_FILENAME_LENGTH];
 	unsigned long m_Offset;
 	unsigned char *m_pData;
 };
