@@ -19,6 +19,5 @@ test:
     - |
         cd build-Debug/
         ./zpg_packer test.zpg -C -A ../tools/test.jpg
-        ./zpg_packer test.zpg -A ../tools/test.txt
         ./zpg_packer test.zpg -L
         ./zpg_packer test.zpg -E test.jpg
