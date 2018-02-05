@@ -19,7 +19,10 @@ test:
     - |
         mkdir test_zpg && cd test_zpg
         mv ../build-Debug/zpg_packer .
-        echo "This is a test" >> test.txt
-        ./zpg_packer test.zpg -C -A test.txt
-        rm test.txt
-        ./zpg_packer test.zpg -E test.txt
+        mv ../tools/test.jpg .
+        mv ../tools/test.txt .
+        ./zpg_packer test.zpg -C -A test.jpg
+        ./zpg_packer test.zpg -A test.txt
+        ./zpg_packer test.zpg -L
+        rm test.txt test.jpg
+        ./zpg_packer test.zpg -E test.jpg
