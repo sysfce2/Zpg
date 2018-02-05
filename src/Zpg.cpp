@@ -279,7 +279,7 @@ bool Zpg::addFromMemory(const unsigned char *pData, const unsigned long Size, st
 		return false;
 	memcpy(ZpgFile.m_pData, pData, Size);
 
-	m_mFiles.insert(std::make_pair(ToFullPath, ZpgFile));
+	m_mFiles.insert(std::make_pair(ToFullPath.c_str(), ZpgFile));
 
 	return true;
 }
