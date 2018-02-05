@@ -13,7 +13,7 @@ test:
         make zpg_packer
     - |
         mkdir test_zpg && cd test_zpg
-        mv ../zpg_packer .
+        mv ../build/zpg_packer .
         echo "This is a test" >> test.txt
         ./zpg_packer test.zpg -C -A test.txt
         rm test.txt
