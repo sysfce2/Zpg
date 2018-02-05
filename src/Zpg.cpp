@@ -169,16 +169,17 @@ void Zpg::unloadAll()
 	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
+		ZpgFile *pZpg = static_cast<ZpgFile*>((*It).second);
 		std::cout << "PASA 1" << std::endl;
-		if ((*It).second->m_pData)
+		if (pZpg->m_pData)
 		{
 			std::cout << "PASA 2" << std::endl;
-			delete[] (*It).second->m_pData;
-			(*It).second->m_pData = 0x0;
+			delete[] pZpg->m_pData;
+			pZpg->m_pData = 0x0;
 		}
 		std::cout << "PASA 3" << std::endl;
-		delete (*It).second;
-		(*It).second = 0x0;
+		delete pZpg;
+		pZpg = 0x0;
 		std::cout << "PASA 4" << std::endl;
 		++It;
 	}
