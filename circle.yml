@@ -7,16 +7,19 @@ dependencies:
 test:
   override:
     - |
-        mkdir build/ && cd build/
+        mkdir build-Release/ && cd build-Release/
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
         make
         make zpg_packer
     - |
+        mkdir build-Debug/ && cd build-Debug/
+        cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
+        make
+        make zpg_packer
+    - |
         mkdir test_zpg && cd test_zpg
-        mv ../build/zpg_packer .
+        mv ../build-Debug/zpg_packer .
         echo "This is a test" >> test.txt
-        ./zpg_packer test.zpg -C -A test.txt
+        gdb -ex run -ex quit --args zpg_packer test.zpg -C -A test.txt
         rm test.txt
-        ./zpg_packer test.zpg -E test.txt
-        
-        
+        gdb -ex run -ex quit --args zpg_packer test.zpg -E test.txt

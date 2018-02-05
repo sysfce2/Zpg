@@ -1,9 +1,16 @@
 image: Visual Studio 2015
 
+environment:
+  ZLIB_ROOT: C:\Program Files (x86)\zlib
+  
+cache:
+  - C:\Program Files (x86)\zlib
+  
 install:
   - cd c:\projects
   # Download ZLib Source
-  - IF NOT EXIST zlib-1.2.11 (
+  - IF NOT EXIST "%ZLIB_ROOT%" (
+    md "%ZLIB_ROOT%" &&
     curl -LfsS -o zlib-1.2.11.tar.gz http://zlib.net/zlib-1.2.11.tar.gz &&
     7z x zlib-1.2.11.tar.gz &&
     7z x zlib-1.2.11.tar &&
