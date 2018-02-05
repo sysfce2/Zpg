@@ -177,7 +177,7 @@ void Zpg::unloadAll()
 			(*It).second.m_pData = 0x0;
 		}
 		std::cout << "PASA 3" << std::endl;
-		It = m_mFiles.erase(It);
+		m_mFiles.erase(It++);
 	}
 	std::cout << "PASA 4" << std::endl;
 }
