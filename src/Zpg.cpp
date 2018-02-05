@@ -21,7 +21,7 @@ void Zpg::close()
 {
 	if (m_PackageFile.is_open())
 		m_PackageFile.close();
-	unloadAll();
+	//unloadAll();
 }
 
 bool Zpg::open(std::string File)
