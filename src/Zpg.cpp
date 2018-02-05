@@ -19,9 +19,9 @@ Zpg::~Zpg()
 
 void Zpg::close()
 {
-	unloadAll();
 	if (m_PackageFile.is_open())
 		m_PackageFile.close();
+	unloadAll();
 }
 
 bool Zpg::open(std::string File)
@@ -53,16 +53,16 @@ bool Zpg::open(std::string File)
 	// Get Files
 	while (m_PackageFile.tellg() < PackageSize)
 	{
-		ZpgFile ZpgFile;;
-		memset(&ZpgFile, 0, sizeof(ZpgFile));
+		ZpgFile *pZpgFile = new ZpgFile();
+		memset(pZpgFile, 0, sizeof(ZpgFile));
 		// Get Header
 	#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-		m_PackageFile.read(reinterpret_cast<char*>(&ZpgFile.m_Header), sizeof(ZpgFile.m_Header));
+		m_PackageFile.read(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header));
 	#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 		unsigned char Temp[sizeof(ZpgFileHeader)];
 		PackageFile.read(reinterpret_cast<char*>(Temp), sizeof(Temp));
 		swap(Temp, sizeof(Temp));
-		ZpgFile.m_Header = *(reinterpret_cast<ZpgFileHeader*>(Temp));
+		pZpgFile->m_Header = *(reinterpret_cast<ZpgFileHeader*>(Temp));
 	#else
 		#error Not Implemented!
 	#endif
@@ -70,32 +70,32 @@ bool Zpg::open(std::string File)
 		// Get Name
 		char c = 0;
 		unsigned int namelen = 0;
-		while (m_PackageFile.read(&c, 1) && c != 0 && namelen < sizeof(ZpgFile.m_aFileName))
-			ZpgFile.m_aFileName[namelen++] = c;
+		while (m_PackageFile.read(&c, 1) && c != 0)
+			pZpgFile->m_aFileName[namelen++] += c;
 
-		ZpgFile.m_Offset = static_cast<unsigned long>(m_PackageFile.tellg());
-		m_PackageFile.seekg(ZpgFile.m_Header.m_FileSizeComp, std::ios_base::cur);
+		pZpgFile->m_Offset = static_cast<unsigned long>(m_PackageFile.tellg());
+		m_PackageFile.seekg(pZpgFile->m_Header.m_FileSizeComp, std::ios_base::cur);
 
-		m_mFiles.insert(std::make_pair(ZpgFile.m_aFileName, ZpgFile));
+		m_mFiles.insert(std::make_pair(pZpgFile->m_aFileName, pZpgFile));
 	}
 
 	return true;
 }
 
-bool Zpg::decompressFileData(ZpgFile &ZpgFile)
+bool Zpg::decompressFileData(ZpgFile *pZpgFile)
 {
-	const unsigned long fileSize = ZpgFile.m_Header.m_FileSizeComp;
+	const unsigned long fileSize = pZpgFile->m_Header.m_FileSizeComp;
 	unsigned char *pFileCompData = new unsigned char[fileSize];
-	m_PackageFile.seekg(ZpgFile.m_Offset, std::ios_base::beg);
-	m_PackageFile.read(reinterpret_cast<char*>(pFileCompData), ZpgFile.m_Header.m_FileSizeComp);
+	m_PackageFile.seekg(pZpgFile->m_Offset, std::ios_base::beg);
+	m_PackageFile.read(reinterpret_cast<char*>(pFileCompData), pZpgFile->m_Header.m_FileSizeComp);
 
-	unsigned long FileSize = ZpgFile.m_Header.m_FileSize;
-	ZpgFile.m_pData = new unsigned char[FileSize];
-	if (uncompress((Bytef *)ZpgFile.m_pData, &FileSize, (Bytef *)pFileCompData, ZpgFile.m_Header.m_FileSizeComp) != Z_OK)
+	unsigned long FileSize = pZpgFile->m_Header.m_FileSize;
+	pZpgFile->m_pData = new unsigned char[FileSize];
+	if (uncompress((Bytef *)pZpgFile->m_pData, &FileSize, (Bytef *)pFileCompData, pZpgFile->m_Header.m_FileSizeComp) != Z_OK)
 	{
-		delete[] ZpgFile.m_pData;
-		ZpgFile.m_pData = 0x0;
-		std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << ZpgFile.m_aFileName << "'! '" << std::endl;
+		delete[] pZpgFile->m_pData;
+		pZpgFile->m_pData = 0x0;
+		std::cerr << "[LibZpg] Unexpected ZLib Error using uncompress with the file '" << pZpgFile->m_aFileName << "'! '" << std::endl;
 		return false;
 	}
 
@@ -112,16 +112,16 @@ bool Zpg::saveToFile(std::string File)
 	PackageFile.write(FILE_SIGN, sizeof(FILE_SIGN)-1); // Sign
 
 	// Files
-	std::map<std::string, ZpgFile>::iterator It = m_mFiles.begin();
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
-		ZpgFile &ZpgFile = (*It).second;
+		ZpgFile *pZpgFile = (*It).second;
 		unsigned long CompSize = 0ul;
 		unsigned char *pCompData = NULL;
 
-		CompSize = compressBound(ZpgFile.m_Header.m_FileSize);
+		CompSize = compressBound(pZpgFile->m_Header.m_FileSize);
 		pCompData = new unsigned char[CompSize];
-		if (compress(static_cast<Bytef*>(pCompData), static_cast<uLong*>(&CompSize), static_cast<Bytef*>(ZpgFile.m_pData), static_cast<uLong>(ZpgFile.m_Header.m_FileSize)) != Z_OK)
+		if (compress(static_cast<Bytef*>(pCompData), static_cast<uLong*>(&CompSize), static_cast<Bytef*>(pZpgFile->m_pData), static_cast<uLong>(pZpgFile->m_Header.m_FileSize)) != Z_OK)
 		{
 			delete [] pCompData;
 			pCompData = 0x0;
@@ -129,13 +129,13 @@ bool Zpg::saveToFile(std::string File)
 		}
 		else
 		{
-			ZpgFile.m_Header.m_FileSizeComp = CompSize;
+			pZpgFile->m_Header.m_FileSizeComp = CompSize;
 
 		#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-			PackageFile.write(reinterpret_cast<char*>(&ZpgFile.m_Header), sizeof(ZpgFile.m_Header)); // File Header
+			PackageFile.write(reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(pZpgFile->m_Header)); // File Header
 		#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			unsigned char Temp[sizeof(ZpgFile.m_Header)];
-			memcpy(Temp, reinterpret_cast<char*>(&ZpgFile.m_Header), sizeof(Temp));
+			unsigned char Temp[sizeof(pZpgFile->m_Header)];
+			memcpy(Temp, reinterpret_cast<char*>(&pZpgFile->m_Header), sizeof(Temp));
 			swap(Temp, sizeof(Temp));
 			PackageFile.write(reinterpret_cast<char*>(Temp), sizeof(Temp)); // File Header
 		#else
@@ -156,24 +156,28 @@ bool Zpg::saveToFile(std::string File)
 
 void Zpg::unloadData(std::string FullPath)
 {
-	std::map<std::string, ZpgFile>::iterator It = m_mFiles.find(FullPath);
-	if (It != m_mFiles.end() && (*It).second.m_pData)
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.find(FullPath);
+	if (It != m_mFiles.end() && (*It).second->m_pData)
 	{
-		delete[] (*It).second.m_pData;
-		(*It).second.m_pData = 0x0;
+		delete[] (*It).second->m_pData;
+		(*It).second->m_pData = 0x0;
 	}
 }
 
 void Zpg::unloadAll()
 {
-	std::map<std::string, ZpgFile>::iterator It = m_mFiles.begin();
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
-		if ((*It).second.m_pData)
+		if ((*It).second->m_pData)
 		{
-			delete[] (*It).second.m_pData;
-			(*It).second.m_pData = 0x0;
+			delete[] (*It).second->m_pData;
+			(*It).second->m_pData = 0x0;
 		}
+
+		delete (*It).second;
+		(*It).second = 0x0;
+
 		++It;
 	}
 	m_mFiles.clear();
@@ -181,7 +185,7 @@ void Zpg::unloadAll()
 
 bool Zpg::exists(std::string FullPath) const
 {
-	std::map<std::string, ZpgFile>::const_iterator It = m_mFiles.find(FullPath);
+	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
 	return (It != m_mFiles.end());
 }
 
@@ -198,12 +202,15 @@ void Zpg::swap(unsigned char *pData, unsigned long Size) const
 
 bool Zpg::removeFile(std::string FullPath)
 {
-	std::map<std::string, ZpgFile>::iterator It = m_mFiles.find(FullPath);
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.find(FullPath);
 	if (It == m_mFiles.end())
 		return false;
 
-	if ((*It).second.m_pData)
-		delete[] (*It).second.m_pData;
+	if ((*It).second)
+	{
+		if ((*It).second->m_pData)
+			delete[] (*It).second->m_pData;
+	}
 
 	m_mFiles.erase(It);
 	return true;
@@ -217,7 +224,7 @@ bool Zpg::moveFile(std::string OldFullPath, std::string NewFullPath)
 		return false;
 	}
 
-	std::map<std::string, ZpgFile>::iterator It = m_mFiles.find(OldFullPath);
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.find(OldFullPath);
 	if (It != m_mFiles.end())
 	{
 	  std::swap(m_mFiles[NewFullPath], (*It).second);
@@ -271,27 +278,31 @@ bool Zpg::addFromMemory(const unsigned char *pData, const unsigned long Size, st
 		}
 	}
 
-	m_mFiles.insert(std::pair<std::string, ZpgFile>(ToFullPath, ZpgFile()));
-	std::map<std::string, ZpgFile>::reverse_iterator it = m_mFiles.rbegin();
-	memset(&(*it).second.m_Header, 0, sizeof(ZpgFile));
-
-	(*it).second.m_Header.m_FileSize = Size;
-	(*it).second.m_pData = new unsigned char[Size];
-	if (!(*it).second.m_pData)
+	ZpgFile *pZpgFile = new ZpgFile;
+	if (!pZpgFile)
 		return false;
-	memcpy((*it).second.m_pData, pData, Size);
+
+	memset(&pZpgFile->m_Header, 0, sizeof(ZpgFile));
+
+	pZpgFile->m_Header.m_FileSize = Size;
+	pZpgFile->m_pData = new unsigned char[Size];
+	if (!pZpgFile->m_pData)
+		return false;
+	memcpy(pZpgFile->m_pData, pData, Size);
+
+	m_mFiles.insert(std::make_pair(ToFullPath, pZpgFile));
 
 	return true;
 }
 
 const unsigned char* Zpg::getFileData(std::string FullPath, unsigned long *pFileSize)
 {
-	std::map<std::string, ZpgFile>::iterator It = m_mFiles.find(FullPath);
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.find(FullPath);
 	if (It == m_mFiles.end())
 		return 0x0;
 
-	*pFileSize = (*It).second.m_Header.m_FileSize;
-	if (!(*It).second.m_pData)
+	*pFileSize = (*It).second->m_Header.m_FileSize;
+	if (!(*It).second->m_pData)
 		decompressFileData((*It).second);
-	return (*It).second.m_pData;
+	return (*It).second->m_pData;
 }

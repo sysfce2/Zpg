@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 
-#define MAX_FILENAME_LENGTH	1024
+#define MAX_FILENAME_LENGTH 1024
 
 struct ZpgFileHeader
 {
@@ -41,7 +41,7 @@ public:
 
     void unloadData(std::string FullPath);
     const unsigned char* getFileData(std::string FullPath, unsigned long *pFileSize);
-    const std::map<std::string, ZpgFile>& getFiles() const { return m_mFiles; }
+    const std::map<std::string, ZpgFile*>& getFiles() const { return m_mFiles; }
 
     static inline std::string toString(const unsigned char *pData, unsigned long Size)
     {
@@ -51,13 +51,13 @@ public:
     void unloadAll();
 
 protected:
-    std::map<std::string, ZpgFile> m_mFiles;
+    std::map<std::string, ZpgFile*> m_mFiles;
     std::ifstream m_PackageFile;
 
 private:
     bool exists(std::string FullPath) const;
     void swap(unsigned char *pData, unsigned long Size) const;
-    bool decompressFileData(ZpgFile &ZpgFile);
+    bool decompressFileData(ZpgFile *pZpgFile);
 };
 
 #endif // LIBZPG_HPP
