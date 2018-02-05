@@ -155,7 +155,7 @@ bool Zpg::saveToFile(std::string File)
 
 void Zpg::unloadData(std::string FullPath)
 {
-	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.find(FullPath);
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.find(FullPath);
 	if (It != m_mFiles.end() && (*It).second->m_pData)
 	{
 		delete[] (*It).second->m_pData;
@@ -165,7 +165,7 @@ void Zpg::unloadData(std::string FullPath)
 
 void Zpg::unloadAll()
 {
-	std::map<std::string, ZpgFile*>::const_iterator It = m_mFiles.begin();
+	std::map<std::string, ZpgFile*>::iterator It = m_mFiles.begin();
 	while (It != m_mFiles.end())
 	{
 		if ((*It).second->m_pData)
