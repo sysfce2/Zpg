@@ -33,8 +33,6 @@ build_script:
     cmake --build build32 --config Release --target Zpg
     cmake --build build32 --config Release --target zpg_packer
     cmake --build build32 --config Release --target install
-    #cd build32\Release
-    #cmake -DCOMPONENT=binaries -P cmake_install.cmake
 
 test_script:
 - cmd: |
