@@ -2,9 +2,6 @@ image: Visual Studio 2015
 
 environment:
   ZPG_ROOT: C:\Program Files (x86)\libZpg
-  
-cache:
-  - C:\Program Files (x86)\zlib
 
 before_build:
 - cmd: |
