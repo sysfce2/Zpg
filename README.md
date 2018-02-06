@@ -14,14 +14,17 @@ Library & Tools for Game Assets Packaging
 #### Linux
 ```sh
 ~$ mkdir build && cd build
-~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release .. && make && sudo make install
+~$ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Release .. && make Zpg
+~$ sudo cmake -DCOMPONENT=library -P cmake_install.cmake
 ```
 #### Windows
 ```batch
 md build32 & cd build32
 cmake -Werror=dev -G"Visual Studio 14 2015" ..
 cd ..
-cmake --build build32 --config Release --target install
+cmake --build build32 --config Release --target Zpg
+cd build32
+cmake -DCOMPONENT=library -P cmake_install.cmake
 ```
 
 ## 'zpg_packer' Tool Build
@@ -29,6 +32,7 @@ cmake --build build32 --config Release --target install
 ```sh
 ~$ mkdir build && cd build
 ~$ cmake -DCMAKE_BUILD_TYPE:STRING=Release .. && make zpg_packer
+~$ sudo cmake -DCOMPONENT=binaries -P cmake_install.cmake
 ```
 #### Windows
 ```batch
@@ -36,6 +40,8 @@ md build32 & cd build32
 cmake -Werror=dev -G"Visual Studio 14 2015" ..
 cd ..
 cmake --build build32 --config Release --target zpg_packer
+cd build32
+cmake -DCOMPONENT=binaries -P cmake_install.cmake
 ```
 
 ## Library Basic Usage Example

@@ -11,7 +11,7 @@ test:
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
         make Zpg
         make zpg_packer
-        make install
+        sudo make install
     - |
         mkdir build-Debug/ && cd build-Debug/
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..

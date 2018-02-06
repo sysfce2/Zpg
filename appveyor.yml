@@ -37,7 +37,6 @@ build_script:
 
 test_script:
 - cmd: |
-    setx PATH "%PATH%;%ZPG_ROOT%\bin;"
-    zpg_packer.exe test.zpg -C -A tools\test.jpg
-    zpg_packer.exe test.zpg -L
-    zpg_packer.exe test.zpg -E test.jpg
+    "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools\test.jpg
+    "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -L
+    "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -E test.jpg
