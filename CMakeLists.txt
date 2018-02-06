@@ -46,17 +46,12 @@ set(CMAKE_C_FLAGS   "${c_flags}"
     CACHE STRING "Flags used by the compiler during all build types." FORCE)
 
 
-# REQUIRED LIBRARIES
-find_package(ZLIB)
-
-
 # INCLUDES
-set(LIB_INCLUDES ${ZLIB_INCLUDE_DIR} src/)
+set(LIB_INCLUDES src/)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
-set(LIB_DEPS ${ZLIB_LIBRARY})
-add_library(${LIB_NAME} STATIC  src/Zpg.cpp)
+add_library(${LIB_NAME} STATIC src/Zpg.cpp)
 target_link_libraries(${LIB_NAME} ${LIB_DEPS})
 
 # TOOLS
