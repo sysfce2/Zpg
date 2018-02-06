@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 # GLOBAL PARAMS
 set(LIB_NAME "Zpg")
-
+set(EXTERNAL_DIR "external/"
+    CACHE PATH "The path to the external libraries.")
 
 # THE PROJECT
 if(POLICY CMP0054)
@@ -45,13 +46,16 @@ set(CMAKE_CXX_FLAGS "${cxx_flags}"
 set(CMAKE_C_FLAGS   "${c_flags}"
     CACHE STRING "Flags used by the compiler during all build types." FORCE)
 
+# EXTERNAL LIBRARIES
+add_subdirectory(${EXTERNAL_DIR} ${CMAKE_CURRENT_BINARY_DIR}/libs)
 
 # INCLUDES
-set(LIB_INCLUDES src/ src/zlib)
+set(LIB_INCLUDES src/ external/zlib)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
 add_library(${LIB_NAME} STATIC src/Zpg.cpp)
+target_link_libraries(${LIB_NAME} zlib)
 
 # TOOLS
 add_executable(zpg_packer EXCLUDE_FROM_ALL tools/zpg_packer.cpp)
