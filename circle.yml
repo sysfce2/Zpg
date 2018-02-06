@@ -11,6 +11,7 @@ test:
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
         make
         make zpg_packer
+        sudo cmake -DCOMPONENT=binaries -P cmake_install.cmake
     - |
         mkdir build-Debug/ && cd build-Debug/
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
@@ -18,6 +19,6 @@ test:
         make zpg_packer
     - |
         cd build-Debug/
-        ./zpg_packer test.zpg -C -A ../tools/test.jpg
-        ./zpg_packer test.zpg -L
-        ./zpg_packer test.zpg -E test.jpg
+        zpg_packer test.zpg -C -A ../tools/test.jpg
+        zpg_packer test.zpg -L
+        zpg_packer test.zpg -E test.jpg

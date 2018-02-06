@@ -68,4 +68,4 @@ target_link_libraries(zpg_packer ${LIB_NAME} ${LIB_DEPS})
 install(DIRECTORY src/ DESTINATION include/${LIB_NAME}
         FILES_MATCHING  PATTERN "*.hpp")
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/)
-
+install(TARGETS zpg_packer RUNTIME DESTINATION bin/ COMPONENT binaries)
