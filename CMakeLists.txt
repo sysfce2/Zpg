@@ -47,16 +47,15 @@ set(CMAKE_C_FLAGS   "${c_flags}"
 
 
 # INCLUDES
-set(LIB_INCLUDES src/)
+set(LIB_INCLUDES src/ src/zlib)
 include_directories(${LIB_INCLUDES})
 
 # LIBRARY STATIC
 add_library(${LIB_NAME} STATIC src/Zpg.cpp)
-target_link_libraries(${LIB_NAME} ${LIB_DEPS})
 
 # TOOLS
 add_executable(zpg_packer EXCLUDE_FROM_ALL tools/zpg_packer.cpp)
-target_link_libraries(zpg_packer ${LIB_NAME} ${LIB_DEPS})
+target_link_libraries(zpg_packer ${LIB_NAME})
 
 
 # INSTALL

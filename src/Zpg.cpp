@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <cstring>
-#include <zlib/zlib.h>
+#include <zlib.h>
 #include <ios>
 
 

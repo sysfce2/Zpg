@@ -3,12 +3,10 @@ Library & Tools for Game Assets Packaging
 
 ## Features
 - Load assets in memory on demand.
-- DEFLATE compression
+- DEFLATE compression (zlib)
 - Easy usage
 - Included tool for manage .zpg files
 
-## Dependencies
-- zlib
 
 ## Library Build & Installation
 #### Linux
