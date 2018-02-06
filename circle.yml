@@ -9,13 +9,13 @@ test:
     - |
         mkdir build-Release/ && cd build-Release/
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
-        make
+        make Zpg
         make zpg_packer
-        sudo cmake -DCOMPONENT=binaries -P cmake_install.cmake
+        make install
     - |
         mkdir build-Debug/ && cd build-Debug/
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
-        make
+        make Zpg
         make zpg_packer
     - |
         cd build-Debug/

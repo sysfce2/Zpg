@@ -2,6 +2,7 @@ image: Visual Studio 2015
 
 environment:
   ZLIB_ROOT: C:\Program Files (x86)\zlib
+  ZPG_ROOT: C:\Program Files (x86)\libZpg
   
 cache:
   - C:\Program Files (x86)\zlib
@@ -36,6 +37,7 @@ build_script:
 
 test_script:
 - cmd: |
+    setx PATH "%PATH%;%ZPG_ROOT%\bin;"
     zpg_packer.exe test.zpg -C -A tools\test.jpg
     zpg_packer.exe test.zpg -L
     zpg_packer.exe test.zpg -E test.jpg
