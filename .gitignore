@@ -9,4 +9,4 @@ install_manifest.txt
 .cproject
 .project
 .settings/
-
+.autotools

@@ -29,15 +29,14 @@ before_build:
     cd ..
     
 build_script:
-  - cmd: cmake --build build32 --config Release --target install
 - cmd: |
+    cmake --build build32 --config Release --target install
     cmake --build build32 --config Release --target zpg_packer
     cd build32\Release
     cmake -DCOMPONENT=binaries -P cmake_install.cmake
 
 test_script:
 - cmd: |
-    cd build32\Release
-    zpg_packer.exe test.zpg -C -A ..\..\tools\test.jpg
+    zpg_packer.exe test.zpg -C -A tools\test.jpg
     zpg_packer.exe test.zpg -L
     zpg_packer.exe test.zpg -E test.jpg
