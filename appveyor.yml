@@ -30,10 +30,11 @@ before_build:
     
 build_script:
 - cmd: |
-    cmake --build build32 --config Release --target install
+    cmake --build build32 --config Release --target Zpg
     cmake --build build32 --config Release --target zpg_packer
-    cd build32\Release
-    cmake -DCOMPONENT=binaries -P cmake_install.cmake
+    cmake --build build32 --config Release --target install
+    #cd build32\Release
+    #cmake -DCOMPONENT=binaries -P cmake_install.cmake
 
 test_script:
 - cmd: |
