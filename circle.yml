@@ -7,19 +7,24 @@ dependencies:
 test:
   override:
     - |
-        mkdir build-Release/ && cd build-Release/
+        mkdir build-release/ && cd build-release/
         cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
         make Zpg
         make zpg_packer
         sudo make install
         cpack --debug --verbose -C CPackConfig.cmake
     - |
-        mkdir build-Debug/ && cd build-Debug/
+        mkdir build-debug/ && cd build-debug/
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
         make Zpg
         make zpg_packer
     - |
-        cd build-Debug/
-        zpg_packer test.zpg -C -A ../tools/test.jpg
+        zpg_packer test.zpg -C -A tools/test.jpg
         zpg_packer test.zpg -L
         zpg_packer test.zpg -E test.jpg
+
+  post:
+    - mkdir $CIRCLE_ARTIFACTS/packages
+    - mv build-release/*.sh $CIRCLE_ARTIFACTS/packages
+    - mv build-release/*.tar.gz $CIRCLE_ARTIFACTS/packages
+    - mv build-release/*.tar.Z $CIRCLE_ARTIFACTS/packages

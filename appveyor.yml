@@ -41,3 +41,7 @@ test_script:
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools/
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -L
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
+    
+artifacts:
+  - path: build32/*.zip
+    name: libZpg
