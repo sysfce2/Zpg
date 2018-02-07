@@ -7,12 +7,18 @@ if(POLICY CMP0054)
 endif()
 project("libZpg")
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(IS_DEBUG TRUE)
-	set(LIB_NAME "Zpg_d")
-else()
-	set(IS_DEBUG FALSE)
-	set(LIB_NAME "Zpg")
+set(LIB_NAME "Zpg")
+
+# Set the default build type to Release
+if(NOT(CMAKE_BUILD_TYPE))
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(IS_DEBUG $<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>)
+
+if (IS_DEBUG)
+	set(CMAKE_DEBUG_POSTFIX "_d")
+	set(CMAKE_EXECUTABLE_SUFFIX "_d")
 endif()
 
 

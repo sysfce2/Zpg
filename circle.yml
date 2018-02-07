@@ -18,6 +18,7 @@ test:
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
         make Zpg
         make zpg_packer
+        cpack --debug --verbose -C CPackConfig.cmake
     - |
         zpg_packer test.zpg -C -A tools/test.jpg
         zpg_packer test.zpg -L
@@ -28,3 +29,4 @@ test:
     - mv build-release/*.sh $CIRCLE_ARTIFACTS/packages
     - mv build-release/*.tar.gz $CIRCLE_ARTIFACTS/packages
     - mv build-release/*.tar.Z $CIRCLE_ARTIFACTS/packages
+    - mv build-debug/*.tar.gz $CIRCLE_ARTIFACTS/packages
