@@ -64,9 +64,8 @@ if (TARGET_OS STREQUAL "windows")
 endif()
 
 # INSTALL
-install(DIRECTORY src/ DESTINATION include/${LIB_NAME}
-        FILES_MATCHING  PATTERN "*.hpp"
-        COMPONENT library)
+install(DIRECTORY src/ DESTINATION include/${LIB_NAME} COMPONENT library
+        FILES_MATCHING  PATTERN "*.hpp")
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/ COMPONENT library)
 install(TARGETS zpg_packer RUNTIME DESTINATION bin/ COMPONENT binaries)
 
