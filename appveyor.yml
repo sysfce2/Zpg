@@ -25,7 +25,7 @@ install:
 
 before_build:
 - cmd: |
-    md build32\Release & cd build32
+    md build32 & cd build32
     cmake -Werror=dev -G "Visual Studio 14 2015" ..
     cd ..
     
