@@ -71,4 +71,7 @@ install(DIRECTORY src/ DESTINATION include/${LIB_NAME} COMPONENT library
         FILES_MATCHING  PATTERN "*.hpp")
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/ COMPONENT library)
 install(TARGETS zpg_packer RUNTIME DESTINATION bin/ COMPONENT binaries)
+if (TARGET_OS STREQUAL "windows")
+	install(FILES ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/zlib.dll DESTINATION ${BIN_DIR} COMPONENT binaries)
+endif()
 
