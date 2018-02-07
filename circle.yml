@@ -1,7 +1,7 @@
 dependencies:
   pre:
     - |
-        sudo apt-get update && sudo apt-get install -y cmake
+        sudo apt-get update && sudo apt-get install -y cmake zlib1g-dev
 
 ## Customize test commands
 test:
