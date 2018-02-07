@@ -5,7 +5,9 @@ set(LIB_NAME "Zpg")
 
 
 # THE PROJECT
-cmake_policy(SET CMP0054 NEW)
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
 project("Zpg")
 
 
