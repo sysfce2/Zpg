@@ -12,6 +12,7 @@ test:
         make Zpg
         make zpg_packer
         sudo make install
+        cpack --debug --verbose -C CPackConfig.cmake
     - |
         mkdir build-Debug/ && cd build-Debug/
         cmake -DCMAKE_BUILD_TYPE:STRING=Debug ..
