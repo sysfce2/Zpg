@@ -1,14 +1,19 @@
 cmake_minimum_required(VERSION 2.8)
 
-# GLOBAL PARAMS
-set(LIB_NAME "Zpg")
-
 
 # THE PROJECT
 if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif()
 project("libZpg")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(IS_DEBUG TRUE)
+	set(LIB_NAME "Zpg_d")
+else()
+	set(IS_DEBUG FALSE)
+	set(LIB_NAME "Zpg")
+endif()
 
 
 # MODULES
@@ -45,7 +50,7 @@ if (TARGET_COMPILER STREQUAL "gcc" OR
     set(cxx_flags "${CMAKE_CXX_FLAGS} -Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
     set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS) #strncpy
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"
@@ -75,8 +80,10 @@ if (TARGET_OS STREQUAL "windows")
 endif()
 
 # INSTALL
+if (NOT IS_DEBUG)
 install(DIRECTORY src/ DESTINATION include/${LIB_NAME} COMPONENT library
         FILES_MATCHING  PATTERN "*.hpp")
+endif()
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/ COMPONENT library)
 install(TARGETS zpg_packer RUNTIME DESTINATION bin/ COMPONENT binaries)
 if (TARGET_OS STREQUAL "windows")

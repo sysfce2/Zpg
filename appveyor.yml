@@ -35,6 +35,10 @@ build_script:
     cmake --build build32 --config Release --target zpg_packer
     cmake --build build32 --config Release --target install
     cmake --build build32 --config Release --target package
+    cmake --build build32 --config Debug --target Zpg
+    cmake --build build32 --config Debug --target zpg_packer
+    cmake --build build32 --config Debug --target install
+    cmake --build build32 --config Debug --target package
 
 test_script:
 - cmd: |
