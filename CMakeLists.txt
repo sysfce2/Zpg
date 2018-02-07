@@ -37,6 +37,7 @@ if (TARGET_COMPILER STREQUAL "gcc" OR
     set(cxx_flags "${CMAKE_CXX_FLAGS} -Wall")
 elseif (TARGET_COMPILER STREQUAL "cl")
     set(cxx_flags "${CMAKE_CXX_FLAGS} /W4 /WX")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS) #strncpy
 endif()
 
 set(CMAKE_CXX_FLAGS "${cxx_flags}"
