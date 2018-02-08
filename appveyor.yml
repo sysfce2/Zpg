@@ -47,7 +47,7 @@ install:
     7z x zlib-1.2.11.tar &&
     cd zlib-1.2.11 &&
     md build & cd build &&
-    cmake -Werror=dev -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% .. &&
+    cmake -Werror=dev -G"%CMAKE_GENERATOR%" .. &&
     cd .. &&
     cmake --build build --config %CMAKE_BUILD_TYPE% --target install &&
     cd ..)
@@ -56,7 +56,7 @@ install:
 before_build:
 - cmd: |
     md build & cd build
-    cmake -Werror=dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ..
+    cmake -Werror=dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% -DZLIB_ROOT=%ZLIB_ROOT% ..
     cd ..
     
 build_script:
