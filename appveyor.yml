@@ -25,23 +25,20 @@ install:
 
 before_build:
 - cmd: |
-    md build32-release & cd build32-release
-    cmake -Werror=dev -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Release ..
-    cd ..
-    md build32-debug & cd build32-debug
-    cmake -Werror=dev -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Debug ..
+    md build32 & cd build32
+    cmake -Werror=dev -G "Visual Studio 14 2015" ..
     cd ..
     
 build_script:
 - cmd: |
-    cmake --build build32-release --config Release --target Zpg
-    cmake --build build32-release --config Release --target zpg_packer
-    cmake --build build32-release --config Release --target install
-    cmake --build build32-release --config Release --target package
-    cmake --build build32-debug --config Debug --target Zpg
-    cmake --build build32-debug --config Debug --target zpg_packer
-    cmake --build build32-debug --config Debug --target install
-    cmake --build build32-debug --config Debug --target package
+    cmake --build build32 --config Release --target Zpg
+    cmake --build build32 --config Release --target zpg_packer
+    cmake --build build32 --config Release --target install
+    cmake --build build32 --config Release --target package
+    cmake --build build32 --config Debug --target Zpg
+    cmake --build build32 --config Debug --target zpg_packer
+    cmake --build build32 --config Debug --target install
+    cmake --build build32 --config Debug --target package
 
 test_script:
 - cmd: |
@@ -50,6 +47,6 @@ test_script:
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
     
 artifacts:
-  - path: build32-release/*.zip
-          build32-debug/*.zip
+  - path: build32/*.zip
+          build32/*.zip
     name: libZpg
