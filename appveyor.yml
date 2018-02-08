@@ -35,8 +35,8 @@ matrix:
       configuration: Release
 
 cache:
-  - C:\Program Files (x86)\zlib
-  - C:\Program Files\zlib
+  #- C:\Program Files (x86)\zlib
+  #- C:\Program Files\zlib
   
 install:
   - echo Parametros %CMAKE_BUILD_TYPE% - %CMAKE_GENERATOR% -
