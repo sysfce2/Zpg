@@ -95,10 +95,8 @@ if (TARGET_OS STREQUAL "windows")
 endif()
 
 # INSTALL
-if (NOT IS_DEBUG)
 install(DIRECTORY src/ DESTINATION include/${LIB_NAME} COMPONENT library
         FILES_MATCHING  PATTERN "*.hpp")
-endif()
 install(TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/ COMPONENT library)
 install(TARGETS zpg_packer RUNTIME DESTINATION bin/ COMPONENT binaries)
 if (TARGET_OS STREQUAL "windows")
