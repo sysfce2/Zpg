@@ -40,7 +40,7 @@ install:
     md build & cd build &&
     cmake -Werror=dev -G"%CMAKE_GENERATOR%" .. &&
     cd .. &&
-    cmake --build build --config Release --target install &&
+    cmake --build build --config %CONFIGURATION% --target install &&
     cd ..)
   - cd c:\projects\zpg
 
