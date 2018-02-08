@@ -30,6 +30,7 @@ cache:
   #- C:\Program Files (x86)\zlib
   
 install:
+  - echo Parametros %CONFIGURATION% - %PALTFORM% - %CMAKE_GENERATOR% -
   - cd c:\projects
   # Download ZLib Source
   - IF NOT EXIST "%ZLIB_ROOT%" (
@@ -38,7 +39,7 @@ install:
     7z x zlib-1.2.11.tar &&
     cd zlib-1.2.11 &&
     md build & cd build &&
-    cmake -Werror=dev -G"%CMAKE_GENERATOR%" .. &&
+    cmake -Werror=dev -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% .. &&
     cd .. &&
     cmake --build build --config %CONFIGURATION% --target install &&
     cd ..)
