@@ -1,10 +1,26 @@
 image: Visual Studio 2015
 
-environment:
-  ZLIB_ROOT: C:\Program Files\zlib
-  ZPG_ROOT: C:\Program Files\libZpg
-  ZPG32_ROOT: C:\Program Files (x86)\libZpg
-  
+matrix:
+  allow_failures:
+    - platform: x86
+      configuration: Debug
+      ZLIB_ROOT: C:\Program Files (x86)\zlib
+      ZPG_ROOT: C:\Program Files (x86)\libZpg
+      BUILD_TARGET: Win64
+    - platform: x86
+      configuration: Release
+      ZLIB_ROOT: C:\Program Files (x86)\zlib
+      ZPG_ROOT: C:\Program Files (x86)\libZpg
+      BUILD_TARGET: Win64
+    - platform: x64
+      configuration: Debug
+      ZLIB_ROOT: C:\Program Files\zlib
+      ZPG_ROOT: C:\Program Files\libZpg
+    - platform: x64
+      configuration: Release
+      ZLIB_ROOT: C:\Program Files\zlib
+      ZPG_ROOT: C:\Program Files\libZpg
+
 cache:
   #- C:\Program Files (x86)\zlib
   
@@ -16,71 +32,32 @@ install:
     7z x zlib-1.2.11.tar.gz &&
     7z x zlib-1.2.11.tar &&
     cd zlib-1.2.11 &&
-    md build32 & cd build32 &&
-    cmake -Werror=dev -G"Visual Studio 14 2015" .. &&
-    cd .. &&
     md build & cd build &&
-    cmake -Werror=dev -G"Visual Studio 14 2015 Win64" .. &&
+    cmake -Werror=dev -G"Visual Studio 14 2015 %BUILD_TARGET%" .. &&
     cd .. &&
-    cmake --build build32 --config Release --target install &&
     cmake --build build --config Release --target install &&
     cd ..)
   - cd c:\projects\zpg
 
 before_build:
 - cmd: |
-    md build-release & cd build-release
-    cmake -Werror=dev -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release ..
-    cd ..
-- cmd: |
-    md build-debug & cd build-debug
-    cmake -Werror=dev -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug ..
-    cd ..
-- cmd: |
-    md build32-release & cd build32-release
-    cmake -Werror=dev -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Release ..
-    cd ..
-- cmd: |
-    md build32-debug & cd build32-debug
-    cmake -Werror=dev -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Debug ..
+    md build & cd build
+    cmake -Werror=dev -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%CONFIGURATION% ..
     cd ..
     
 build_script:
 - cmd: |
-    cmake --build build-release --config Release --target Zpg
-    cmake --build build-release --config Release --target zpg_packer
-    cmake --build build-release --config Release --target install
-    cmake --build build-release --config Release --target package
-- cmd: |
-    cmake --build build-debug --config Debug --target Zpg
-    cmake --build build-debug --config Debug --target zpg_packer
-    cmake --build build-debug --config Debug --target install
-    cmake --build build-debug --config Debug --target package
-- cmd: |
-    cmake --build build32-release --config Release --target Zpg
-    cmake --build build32-release --config Release --target zpg_packer
-    cmake --build build32-release --config Release --target install
-    cmake --build build32-release --config Release --target package
-- cmd: |
-    cmake --build build32-debug --config Debug --target Zpg
-    cmake --build build32-debug --config Debug --target zpg_packer
-    cmake --build build32-debug --config Debug --target install
-    cmake --build build32-debug --config Debug --target package
+    cmake --build build --config %CONFIGURATION% --target Zpg
+    cmake --build build --config %CONFIGURATION% --target zpg_packer
+    cmake --build build --config %CONFIGURATION% --target install
+    cmake --build build --config %CONFIGURATION% --target package
 
 test_script:
 - cmd: |
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools/
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -L
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
-- cmd: |
-    "%ZPG32_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools/
-    "%ZPG32_ROOT%\bin\zpg_packer.exe" test.zpg -L
-    "%ZPG32_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
     
 artifacts:
-  - path: build64/*.zip
-          build64/*.zip
-    name: libZpg
   - path: build/*.zip
-          build/*.zip
-    name: libZpg32
+    name: libZpg
