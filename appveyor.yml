@@ -6,18 +6,22 @@ environment:
       ZPG_ROOT: C:\Program Files (x86)\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015
       CMAKE_BUILD_TYPE: Debug
+      ZPG_PACKER_NAME: zpg_packer_d
     - ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015
       CMAKE_BUILD_TYPE: Release
+      ZPG_PACKER_NAME: zpg_packer
     - ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015 Win64
       CMAKE_BUILD_TYPE: Debug
+      ZPG_PACKER_NAME: zpg_packer_d
     - ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015 Win64
       CMAKE_BUILD_TYPE: Release
+      ZPG_PACKER_NAME: zpg_packer
 
 matrix:
   allow_failures:
@@ -64,9 +68,9 @@ build_script:
 
 test_script:
 - cmd: |
-    "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools/
-    "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -L
-    "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
+    "%ZPG_ROOT%\bin\%ZPG_PACKER_NAME%.exe" test.zpg -C -A tools/
+    "%ZPG_ROOT%\bin\%ZPG_PACKER_NAME%.exe" test.zpg -L
+    "%ZPG_ROOT%\bin\%ZPG_PACKER_NAME%.exe" test.zpg -E tools/test.jpg
     
 artifacts:
   - path: build/*.zip
