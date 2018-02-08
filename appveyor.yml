@@ -5,15 +5,19 @@ environment:
     - ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015
+      CMAKE_BUILD_TYPE: Debug
     - ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015
+      CMAKE_BUILD_TYPE: Release
     - ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015 Win64
+      CMAKE_BUILD_TYPE: Debug
     - ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015 Win64
+      CMAKE_BUILD_TYPE: Release
 
 matrix:
   allow_failures:
@@ -30,7 +34,7 @@ cache:
   #- C:\Program Files (x86)\zlib
   
 install:
-  - echo Parametros %APPVEYOR_CONFIGURATION% - %APPVEYOR_PALTFORM% - %CMAKE_GENERATOR% -
+  - echo Parametros %CMAKE_BUILD_TYPE% - %CMAKE_GENERATOR% -
   - cd c:\projects
   # Download ZLib Source
   - IF NOT EXIST "%ZLIB_ROOT%" (
@@ -39,24 +43,24 @@ install:
     7z x zlib-1.2.11.tar &&
     cd zlib-1.2.11 &&
     md build & cd build &&
-    cmake -Werror=dev -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% .. &&
+    cmake -Werror=dev -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% .. &&
     cd .. &&
-    cmake --build build --config %CONFIGURATION% --target install &&
+    cmake --build build --config %CMAKE_BUILD_TYPE% --target install &&
     cd ..)
   - cd c:\projects\zpg
 
 before_build:
 - cmd: |
     md build & cd build
-    cmake -Werror=dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% ..
+    cmake -Werror=dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ..
     cd ..
     
 build_script:
 - cmd: |
-    cmake --build build --config %CONFIGURATION% --target Zpg
-    cmake --build build --config %CONFIGURATION% --target zpg_packer
-    cmake --build build --config %CONFIGURATION% --target install
-    cmake --build build --config %CONFIGURATION% --target package
+    cmake --build build --config %CMAKE_BUILD_TYPE% --target Zpg
+    cmake --build build --config %CMAKE_BUILD_TYPE% --target zpg_packer
+    cmake --build build --config %CMAKE_BUILD_TYPE% --target install
+    cmake --build build --config %CMAKE_BUILD_TYPE% --target package
 
 test_script:
 - cmd: |
