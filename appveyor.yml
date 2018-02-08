@@ -6,20 +6,22 @@ matrix:
       configuration: Debug
       ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
-      BUILD_TARGET: Win64
+      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
     - platform: x86
       configuration: Release
       ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
-      BUILD_TARGET: Win64
+      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
     - platform: x64
       configuration: Debug
       ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
+      CMAKE_GENERATOR: Visual Studio 14 2015
     - platform: x64
       configuration: Release
       ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
+      CMAKE_GENERATOR: Visual Studio 14 2015
 
 cache:
   #- C:\Program Files (x86)\zlib
@@ -33,7 +35,7 @@ install:
     7z x zlib-1.2.11.tar &&
     cd zlib-1.2.11 &&
     md build & cd build &&
-    cmake -Werror=dev -G"Visual Studio 14 2015 %BUILD_TARGET%" .. &&
+    cmake -Werror=dev -G"%CMAKE_GENERATOR%" .. &&
     cd .. &&
     cmake --build build --config Release --target install &&
     cd ..)
@@ -42,7 +44,7 @@ install:
 before_build:
 - cmd: |
     md build & cd build
-    cmake -Werror=dev -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%CONFIGURATION% ..
+    cmake -Werror=dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% ..
     cd ..
     
 build_script:
