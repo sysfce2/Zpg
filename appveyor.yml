@@ -4,16 +4,16 @@ environment:
   matrix:
     - ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
-      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
+      CMAKE_GENERATOR: Visual Studio 14 2015
     - ZLIB_ROOT: C:\Program Files (x86)\zlib
       ZPG_ROOT: C:\Program Files (x86)\libZpg
+      CMAKE_GENERATOR: Visual Studio 14 2015
+    - ZLIB_ROOT: C:\Program Files\zlib
+      ZPG_ROOT: C:\Program Files\libZpg
       CMAKE_GENERATOR: Visual Studio 14 2015 Win64
     - ZLIB_ROOT: C:\Program Files\zlib
       ZPG_ROOT: C:\Program Files\libZpg
-      CMAKE_GENERATOR: Visual Studio 14 2015
-    - ZLIB_ROOT: C:\Program Files\zlib
-      ZPG_ROOT: C:\Program Files\libZpg
-      CMAKE_GENERATOR: Visual Studio 14 2015
+      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
 
 matrix:
   allow_failures:
