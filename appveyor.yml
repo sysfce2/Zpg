@@ -19,34 +19,53 @@ install:
     md build32 & cd build32 &&
     cmake -Werror=dev -G"Visual Studio 14 2015" .. &&
     cd .. &&
-    cmake --build build32 --config Release --target install &&
-    cd .. &&
     md build & cd build &&
     cmake -Werror=dev -G"Visual Studio 14 2015 Win64" .. &&
     cd .. &&
+    cmake --build build32 --config Release --target install &&
     cmake --build build --config Release --target install &&
     cd ..)
   - cd c:\projects\zpg
 
 before_build:
 - cmd: |
-    md build64-release & cd build64-release
+    md build-release & cd build-release
     cmake -Werror=dev -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release ..
     cd ..
-    md build64-debug & cd build64-debug
+- cmd: |
+    md build-debug & cd build-debug
     cmake -Werror=dev -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug ..
+    cd ..
+- cmd: |
+    md build32-release & cd build32-release
+    cmake -Werror=dev -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Release ..
+    cd ..
+- cmd: |
+    md build32-debug & cd build32-debug
+    cmake -Werror=dev -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Debug ..
     cd ..
     
 build_script:
 - cmd: |
-    cmake --build build64-release --config Release --target Zpg
-    cmake --build build64-release --config Release --target zpg_packer
-    cmake --build build64-release --config Release --target install
-    cmake --build build64-release --config Release --target package
-    cmake --build build64-debug --config Debug --target Zpg
-    cmake --build build64-debug --config Debug --target zpg_packer
-    cmake --build build64-debug --config Debug --target install
-    cmake --build build64-debug --config Debug --target package
+    cmake --build build-release --config Release --target Zpg
+    cmake --build build-release --config Release --target zpg_packer
+    cmake --build build-release --config Release --target install
+    cmake --build build-release --config Release --target package
+- cmd: |
+    cmake --build build-debug --config Debug --target Zpg
+    cmake --build build-debug --config Debug --target zpg_packer
+    cmake --build build-debug --config Debug --target install
+    cmake --build build-debug --config Debug --target package
+- cmd: |
+    cmake --build build32-release --config Release --target Zpg
+    cmake --build build32-release --config Release --target zpg_packer
+    cmake --build build32-release --config Release --target install
+    cmake --build build32-release --config Release --target package
+- cmd: |
+    cmake --build build32-debug --config Debug --target Zpg
+    cmake --build build32-debug --config Debug --target zpg_packer
+    cmake --build build32-debug --config Debug --target install
+    cmake --build build32-debug --config Debug --target package
 
 test_script:
 - cmd: |
@@ -62,3 +81,6 @@ artifacts:
   - path: build64/*.zip
           build64/*.zip
     name: libZpg
+  - path: build/*.zip
+          build/*.zip
+    name: libZpg32
