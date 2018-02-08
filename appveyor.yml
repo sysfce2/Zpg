@@ -20,7 +20,7 @@ install:
     cmake -Werror=dev -G"Visual Studio 14 2015" .. &&
     cd .. &&
     cmake --build build32 --config Release --target install &&
-    cd ..
+    cd .. &&
     md build & cd build &&
     cmake -Werror=dev -G"Visual Studio 14 2015 Win64" .. &&
     cd .. &&
