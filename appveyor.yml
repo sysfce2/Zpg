@@ -1,8 +1,9 @@
 image: Visual Studio 2015
 
 environment:
-  ZLIB_ROOT: C:\Program Files (x86)\zlib
-  ZPG_ROOT: C:\Program Files (x86)\libZpg
+  ZLIB_ROOT: C:\Program Files\zlib
+  ZPG_ROOT: C:\Program Files\libZpg
+  ZPG32_ROOT: C:\Program Files (x86)\libZpg
   
 cache:
   #- C:\Program Files (x86)\zlib
@@ -11,15 +12,19 @@ install:
   - cd c:\projects
   # Download ZLib Source
   - IF NOT EXIST "%ZLIB_ROOT%" (
-    md "%ZLIB_ROOT%" &&
     curl -LfsS -o zlib-1.2.11.tar.gz http://zlib.net/zlib-1.2.11.tar.gz &&
     7z x zlib-1.2.11.tar.gz &&
     7z x zlib-1.2.11.tar &&
     cd zlib-1.2.11 &&
     md build32 & cd build32 &&
-    cmake -Werror=dev -G"Visual Studio 14 2015 Win64" .. &&
+    cmake -Werror=dev -G"Visual Studio 14 2015" .. &&
     cd .. &&
     cmake --build build32 --config Release --target install &&
+    cd ..
+    md build & cd build &&
+    cmake -Werror=dev -G"Visual Studio 14 2015 Win64" .. &&
+    cd .. &&
+    cmake --build build --config Release --target install &&
     cd ..)
   - cd c:\projects\zpg
 
@@ -48,6 +53,10 @@ test_script:
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools/
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -L
     "%ZPG_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
+- cmd: |
+    "%ZPG32_ROOT%\bin\zpg_packer.exe" test.zpg -C -A tools/
+    "%ZPG32_ROOT%\bin\zpg_packer.exe" test.zpg -L
+    "%ZPG32_ROOT%\bin\zpg_packer.exe" test.zpg -E tools/test.jpg
     
 artifacts:
   - path: build64/*.zip
