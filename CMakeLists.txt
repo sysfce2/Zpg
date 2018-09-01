@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 2.8)
 if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif()
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW) # Root Variables
+endif()
 project("libZpg")
 
 set(LIB_NAME "Zpg")
